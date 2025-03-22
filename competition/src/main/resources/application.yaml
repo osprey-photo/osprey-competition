@@ -1,0 +1,12 @@
+
+# Quarkus configuration
+quarkus:
+  http:
+    port: 9000
+    cors:
+      ~: true
+      origins: "/.*/"
+
+# Compeition configuration
+competition:
+  file-location: /home/matthew/images/Named
