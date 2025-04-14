@@ -8,7 +8,9 @@ import org.ospreyphoto.model.State;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.core.eventbus.EventBus;
+import io.vertx.mutiny.core.eventbus.Message;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
@@ -29,6 +31,15 @@ public class ImageResource {
     @Inject
     EventBus bus;
 
+
+    @GET
+    @Path("/catalog")
+    public Uni<String> initCatalog(){
+        return bus.<String>request("catalog","load")            
+        .onItem().transform(Message::body);  
+       
+    }
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public List<CompetitionImage> getImages() {
@@ -40,6 +51,9 @@ public class ImageResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public void updateState(@PathParam("imgid") String id, State state) {
         catalog.updateState(id, state);
+
+
+
         bus.<String>publish("displayControl", "refresh");
     }
 }

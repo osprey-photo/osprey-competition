@@ -32,6 +32,8 @@ export const LIGHT_BOX_IMAGES = 'light_box_images'
 export type CompetitionSettings = {
   orderedValueScores: Array<string>
   numberScoresAvailable: Map<string, number>
+  randomised: boolean
+  imageSrc: string
 }
 
 export type DisplayMessage = {

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 
-
+import { storeToRefs } from 'pinia'
+import LoadImagesComponent from '@/components/LoadImagesComponent.vue';
 import { useCompetitionStore } from '@/stores/competitionstate';
 import { FIRST, HC, HELD_BACK, REJECTED, SECOND, THIRD, type CompetitionImage, type Filter } from '@/types';
 import { reactive, ref, watch } from 'vue';
@@ -10,12 +11,10 @@ import { placeStyle } from '@/helpers';
 const runthroughTime = 1000;
 
 const comp = useCompetitionStore();
-
-const x = ref(false)
-
 const statusIndicator = reactive({
   runthrough: false,
-  critique: false
+  critique: false,
+  loadImages: false
 })
 
 async function rowSelected(row: string) {
@@ -96,10 +95,7 @@ async function awardScore(img: CompetitionImage, score: string) {
   }
 }
 
-async function updateList() {
-  comp.competitionSettings.orderedValueScores = [FIRST, SECOND, THIRD, HC];
-  comp.updateList();
-}
+
 
 function imageForScore(place: string): Array<CompetitionImage> {
   const filtered = comp.data.filter((i: CompetitionImage) => {
@@ -112,7 +108,7 @@ function imageForScore(place: string): Array<CompetitionImage> {
   return filtered;
 }
 
-import { storeToRefs } from 'pinia'
+
 
 const { displayImageId } = storeToRefs(comp)
 watch(displayImageId, (d) => {
@@ -135,9 +131,13 @@ watch(displayImageId, (d) => {
     <div id="navbarBasicExample" class="navbar-menu">
       <div class="navbar-start">
         <a class="navbar-item">
-          <span class="button " @click="updateList">Load Images</span>
+          <button class="button " :class="{ 'is-loading': statusIndicator.loadImages }"
+            @click="statusIndicator.loadImages = true">Load
+            Images</button>
         </a>
-
+        <a class="navbar-item">
+          <button class="button " @click="comp.updateList">Refresh List</button>
+        </a>
         <a class="navbar-item">
           <RouterLink class="button" to="/singledisplay">Open Display</RouterLink>
         </a>
@@ -253,6 +253,7 @@ watch(displayImageId, (d) => {
     </div>
 
   </div>
+  <LoadImagesComponent :active="statusIndicator.loadImages" @done="statusIndicator.loadImages = false" />
 </template>
 
 <style lang="css">

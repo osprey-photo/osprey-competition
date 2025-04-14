@@ -1,7 +1,10 @@
 plugins {
     id 'java'
     id 'io.quarkus'
+   
 }
+
+
 
 repositories {
     mavenCentral()
@@ -11,7 +14,8 @@ repositories {
 dependencies {
     implementation 'io.quarkus:quarkus-vertx'
     implementation 'io.quarkus:quarkus-websockets'
- 
+ // https://mvnrepository.com/artifact/tv.wunderbox/nativefiledialog
+    implementation 'tv.wunderbox:nativefiledialog:1.0.3'
     implementation('org.jboss.slf4j:slf4j-jboss-logmanager')
     // https://mvnrepository.com/artifact/org.slf4j/slf4j-api
     implementation 'org.slf4j:slf4j-api:2.0.17'

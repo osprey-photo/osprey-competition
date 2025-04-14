@@ -14,12 +14,19 @@ import {
   SECOND,
 } from '@/types'
 import { BACKEND_URI } from '@/config'
-import axios from 'axios'
+import axios, { type AxiosResponse } from 'axios'
 
 export const useCompetitionStore = defineStore('competition', () => {
   let displayedImageIndex = -1
   const data: Ref<Array<CompetitionImage>> = ref([])
   const displayImageId = ref('')
+
+  const competitionSettings: Reactive<CompetitionSettings> = reactive({
+    orderedValueScores: [] as Array<string>,
+    randomised: true,
+    numberScoresAvailable: {} as Map<string, number>,
+    imageSrc: '',
+  })
 
   /** Load new images from the server */
   async function updateList() {
@@ -30,10 +37,6 @@ export const useCompetitionStore = defineStore('competition', () => {
       compImage.state = { kept: '', place: '', score: -1 }
       data.value.push(compImage)
     }
-
-    // set one type of compeition
-    competitionSettings.numberScoresAvailable.set(FIRST, 1).set(SECOND, 1).set(THIRD, 1).set(HC, 4)
-    competitionSettings.orderedValueScores = [FIRST, SECOND, THIRD, HC]
 
     console.log(data.value)
   }
@@ -86,6 +89,20 @@ export const useCompetitionStore = defineStore('competition', () => {
       }
     }
     return -1
+  }
+
+  /** Request results be displayed */
+  async function initCatalog(): Promise<string> {
+    return await axios.get(`${BACKEND_URI}/images/catalog`)
+  }
+
+  /** Request results be displayed */
+  async function getImageSrc(): Promise<string> {
+    const resp: AxiosResponse = await axios.get(`${BACKEND_URI}/action/imagesrc`)
+    if (resp.status == 200) {
+      return resp.data
+    }
+    return ''
   }
 
   /** Request results be displayed */
@@ -159,12 +176,6 @@ export const useCompetitionStore = defineStore('competition', () => {
     )
   }
 
-  const competitionSettings: Reactive<CompetitionSettings> = reactive({
-    orderedValueScores: [] as Array<string>,
-
-    numberScoresAvailable: {} as Map<string, number>,
-  })
-
   return {
     data,
     competitionSettings,
@@ -181,5 +192,7 @@ export const useCompetitionStore = defineStore('competition', () => {
     setLightBoxFiltered,
     placeImg,
     setResults,
+    initCatalog,
+    getImageSrc,
   }
 })
