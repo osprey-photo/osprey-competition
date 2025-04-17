@@ -1,8 +1,8 @@
-import LightboxView from '@/views/LightboxView.vue'
+// import LightboxView from '@/views/LightboxView.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import SummaryView from '@/views/SummaryView.vue'
-import SingleDisplay from '@/views/SingleDisplay.vue'
+import ImageDisplay from '@/views/ImageDisplay.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -12,15 +12,15 @@ const router = createRouter({
       name: 'home',
       component: HomeView,
     },
+    // {
+    //   path: '/lightbox',
+    //   name: 'lightbox',
+    //   component: LightboxView,
+    // },
     {
-      path: '/lightbox',
-      name: 'lightbox',
-      component: LightboxView,
-    },
-    {
-      path: '/singledisplay',
-      name: 'singledisplay',
-      component: SingleDisplay,
+      path: '/display',
+      name: 'display',
+      component: ImageDisplay,
     },
     {
       path: '/summary',

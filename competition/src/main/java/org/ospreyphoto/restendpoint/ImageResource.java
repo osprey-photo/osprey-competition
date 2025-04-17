@@ -33,7 +33,7 @@ public class ImageResource {
 
 
     @GET
-    @Path("/catalog")
+    @Path("/load")
     public Uni<String> initCatalog(){
         return bus.<String>request("catalog","load")            
         .onItem().transform(Message::body);  

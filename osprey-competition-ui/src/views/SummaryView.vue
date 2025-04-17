@@ -62,6 +62,11 @@ async function action(cmd: string) {
   }
 }
 
+async function doneLoadImages(){
+  statusIndicator.loadImages = false;
+  await comp.updateList()
+}
+
 function runthrough() {
 
   comp.resetIndex();
@@ -139,7 +144,7 @@ watch(displayImageId, (d) => {
           <button class="button " @click="comp.updateList">Refresh List</button>
         </a>
         <a class="navbar-item">
-          <RouterLink class="button" to="/singledisplay">Open Display</RouterLink>
+          <RouterLink class="button" to="display">Open Display</RouterLink>
         </a>
       </div>
 
@@ -253,7 +258,7 @@ watch(displayImageId, (d) => {
     </div>
 
   </div>
-  <LoadImagesComponent :active="statusIndicator.loadImages" @done="statusIndicator.loadImages = false" />
+  <LoadImagesComponent :active="statusIndicator.loadImages" @done="doneLoadImages" />
 </template>
 
 <style lang="css">

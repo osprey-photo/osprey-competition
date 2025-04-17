@@ -21,12 +21,23 @@ export const useCompetitionStore = defineStore('competition', () => {
   const data: Ref<Array<CompetitionImage>> = ref([])
   const displayImageId = ref('')
 
-  const competitionSettings: Reactive<CompetitionSettings> = reactive({
+  const competitionSettings: Ref<CompetitionSettings> = ref({
     orderedValueScores: [] as Array<string>,
     randomised: true,
     numberScoresAvailable: {} as Map<string, number>,
     imageSrc: '',
   })
+
+  async function persistSettings(settings: CompetitionSettings){
+    competitionSettings.value=settings;
+    return await axios.post(`${BACKEND_URI}/action/persistconfig`,
+      competitionSettings.value
+   )
+  }
+
+  async function initCatalog(){
+    return await axios.get(`${BACKEND_URI}/images/load`)
+  }
 
   /** Load new images from the server */
   async function updateList() {
@@ -91,10 +102,6 @@ export const useCompetitionStore = defineStore('competition', () => {
     return -1
   }
 
-  /** Request results be displayed */
-  async function initCatalog(): Promise<string> {
-    return await axios.get(`${BACKEND_URI}/images/catalog`)
-  }
 
   /** Request results be displayed */
   async function getImageSrc(): Promise<string> {
@@ -192,7 +199,8 @@ export const useCompetitionStore = defineStore('competition', () => {
     setLightBoxFiltered,
     placeImg,
     setResults,
-    initCatalog,
+    persistSettings,
     getImageSrc,
+    initCatalog,
   }
 })

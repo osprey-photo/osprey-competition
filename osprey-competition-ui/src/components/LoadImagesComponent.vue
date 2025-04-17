@@ -2,9 +2,8 @@
 import { useCompetitionStore } from '@/stores/competitionstate';
 import { reactive, ref } from 'vue';
 
-// import type { State } from '@/types';
-// import { placeStyle } from '@/helpers';
-defineProps<{
+import { FIRST, HC, HELD_BACK, REJECTED, SECOND, THIRD, type CompetitionImage, type CompetitionSettings, type Filter } from '@/types';
+const props = defineProps<{
   active: boolean
 }>()
 
@@ -19,16 +18,25 @@ const filename = ref("")
 
 
 async function load() {
-
+  console.log("Requesting image src")
   filename.value = await comp.getImageSrc();
-
+  
 }
 
 async function closeUpdate() {
 
-  // comp.competitionSettings.numberScoresAvailable =
+  const settings: CompetitionSettings = {
+    orderedValueScores: [FIRST, SECOND, THIRD, HC],
+    numberScoresAvailable: new Map([[FIRST, 1],[SECOND,1],[THIRD,1],[HC,3]]),
+    randomised: true,
+    imageSrc: filename.value
 
-  await comp.updateList();
+  }
+
+  comp.persistSettings(settings);
+
+  comp.initCatalog();
+  // await comp.compSettings();
   emit("done")
 }
 const randomised = ref(true)
@@ -55,11 +63,9 @@ const hcs = ref(3)
             </div>
             <div class="field-body">
               <div class="field">
-                <button class="button " @click="load" :class="{ 'is-loading': status.loadImages }">Select
-                  directory...</button>
-              </div>
-              <div class="field">
-                {{ filename }}
+                <input class="input is-success" type="text" placeholder="Full Directory Path" v-model="filename">
+                <!-- <button class="button " @click="load" :class="{ 'is-loading': status.loadImages }">Select
+                  directory...</button> -->
               </div>
             </div>
           </div>

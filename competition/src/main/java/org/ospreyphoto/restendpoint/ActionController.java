@@ -1,8 +1,10 @@
 package org.ospreyphoto.restendpoint;
 
+import org.ospreyphoto.config.AppState;
 import org.ospreyphoto.config.Config;
 import org.ospreyphoto.model.Action;
-import org.ospreyphoto.model.DisplayMessage;
+import org.ospreyphoto.model.CompetitionSettings;
+import org.ospreyphoto.nativeui.Controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,11 +32,39 @@ public class ActionController {
     @Inject
     EventBus bus;
 
+    @Inject
+    AppState appstate;
+
+    @Inject
+    Controller nativeui;
+
+    @POST
+    @Path("/persistconfig")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public String persistConfig(CompetitionSettings settinigs) {
+        try {
+
+            appstate.updateSettings(settinigs);
+
+            ObjectMapper mapper = new ObjectMapper();
+            var actionJson = mapper.writeValueAsString(settinigs);
+            logger.info(actionJson);
+            logger.info(appstate.getSettings().imageSrc);
+            return "done";
+        } catch (JsonProcessingException e) {
+            logger.error("JSON processing exception ", e);
+            throw new WebApplicationException("JSON Processing exception ", e);
+        }
+    }
+
     @GET
     @Path("/imagesrc")
-    public Uni<String> initCatalog(){
-        return bus.<String>request("nativeui","selectdir")            
-        .onItem().transform(Message::body);  
+    public Uni<String> initCatalog() {
+        logger.info("Requesting img src");
+        Uni<String> r =  bus.<String>request("nativeui", "selectdir")
+                .onItem().transform(Message::body);
+        logger.info("Got result "+r);
+        return r;
     }
 
     @POST
@@ -45,7 +75,6 @@ public class ActionController {
             var actionJson = mapper.writeValueAsString(action);
             logger.info("[action] {}", actionJson);
 
-            
             bus.<String>publish("displayControl", actionJson);
         } catch (JsonProcessingException e) {
             logger.error("JSON processing exception ", e);

@@ -8,7 +8,8 @@ plugins {
 
 repositories {
     mavenCentral()
-    mavenLocal()
+    mavenLocal() 
+    maven { url 'https://jitpack.io' }
 }
 
 dependencies {
@@ -23,7 +24,7 @@ dependencies {
     implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
  
     implementation 'io.quarkus:quarkus-config-yaml'
-
+   implementation 'com.github.steos.jnafilechooser:jnafilechooser:1.1.2'
     implementation 'io.quarkus:quarkus-arc'
     implementation 'io.quarkus:quarkus-rest-jackson'
     testImplementation 'io.quarkus:quarkus-junit5'
