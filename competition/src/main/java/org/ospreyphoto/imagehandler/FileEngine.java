@@ -13,12 +13,19 @@ import org.ospreyphoto.model.State;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.vertx.mutiny.core.eventbus.EventBus;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+
+
 public class FileEngine {
     final Logger logger = LoggerFactory.getLogger(FileEngine.class);
 
+    EventBus bus;
     private Path basePath;
 
-    public FileEngine(String basePath) {
+    public FileEngine(String basePath,EventBus bus) {
+        this.bus = bus;
         this.basePath = Paths.get(basePath);
         if (!Files.exists(this.basePath)) {
             throw new RuntimeException("Path does not exist " + basePath);
@@ -47,10 +54,15 @@ public class FileEngine {
                     var title = p.substring(p.lastIndexOf('%') + 1, p.indexOf("."));
                     var fname = Paths.get(this.basePath.toString(), p);
                     var state = new State();
-                    return CompetitionImage.builder().withName(name).withTitle(title).withFilename(fname).withState(state).build();
+                    return CompetitionImage.builder().withName(name).withTitle(title).withFilename(fname)
+                            .withState(state).build();
                 } catch (IOException e) {
                     throw new RuntimeException("Unable to load iamges ", e);
                 }
+            }).map((CompetitionImage ci) -> {
+                String update = ci.getFilePath().toString();
+                bus.<String>publish("statusUpdate", update);
+                return ci;
             }).collect(Collectors.toList());
 
         } catch (IOException e) {

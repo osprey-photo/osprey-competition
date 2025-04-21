@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { useCompetitionStore } from '@/stores/competitionstate';
-import { reactive, ref } from 'vue';
+import { onMounted, ref } from 'vue';
 
-import { FIRST, HC, HELD_BACK, REJECTED, SECOND, THIRD, type CompetitionImage, type CompetitionSettings, type Filter } from '@/types';
+import { FIRST, HC, SECOND, THIRD, type CompetitionSettings } from '@/types';
+import StatusComponent from './StatusComponent.vue';
 const props = defineProps<{
   active: boolean
 }>()
@@ -10,32 +11,26 @@ const props = defineProps<{
 const emit = defineEmits(['done'])
 const comp = useCompetitionStore();
 
-const status = reactive({
-  loadImages: false
-})
 
 const filename = ref("")
 
-
-async function load() {
-  console.log("Requesting image src")
-  filename.value = await comp.getImageSrc();
-  
-}
+onMounted(() => {
+  comp.getSettings();
+  console.log(comp.competitionSettings)
+})
 
 async function closeUpdate() {
 
-  const settings: CompetitionSettings = {
-    orderedValueScores: [FIRST, SECOND, THIRD, HC],
-    numberScoresAvailable: new Map([[FIRST, 1],[SECOND,1],[THIRD,1],[HC,3]]),
-    randomised: true,
-    imageSrc: filename.value
+  // const settings: CompetitionSettings = {
+  //   orderedValueScores: [FIRST, SECOND, THIRD, HC],
+  //   numberScoresAvailable: new Map([[FIRST, 1], [SECOND, 1], [THIRD, 1], [HC, 3]]),
+  //   randomised: true,
+  //   imageSrc: filename.value
+  // }
 
-  }
+  await comp.persistSettings();
 
-  comp.persistSettings(settings);
 
-  comp.initCatalog();
   // await comp.compSettings();
   emit("done")
 }
@@ -56,49 +51,75 @@ const hcs = ref(3)
         </header>
 
         <div class="modal-card-body">
-
-          <div class="field is-horizontal">
-            <div class="field-label is-normal">
-              <label class="label">Image Directory</label>
-            </div>
-            <div class="field-body">
-              <div class="field">
-                <input class="input is-success" type="text" placeholder="Full Directory Path" v-model="filename">
-                <!-- <button class="button " @click="load" :class="{ 'is-loading': status.loadImages }">Select
+          <div class="columns">
+            <div class="column">
+              <div class="field is-horizontal">
+                <div class="field-label is-normal">
+                  <label class="label">Image Directory</label>
+                </div>
+                <div class="field-body">
+                  <div class="field">
+                    <input class="input is-success" type="text" placeholder="Full Directory Path"
+                      v-model="comp.competitionSettings.imageSrc">
+                    <!-- <button class="button " @click="load" :class="{ 'is-loading': status.loadImages }">Select
                   directory...</button> -->
-              </div>
-            </div>
-          </div>
-
-          <div class="field is-horizontal">
-            <div class="field-label is-normal">
-              <label class="label">Scoring</label>
-            </div>
-            <div class="field-body">
-              <div class="field is-narrow">
-                <div class="control">
-                  <div class="select is-fullwidth">
-                    <select v-model="selected">
-                      <option value="placed">1st, 2nd, 3rd, HC</option>
-                    </select>
                   </div>
                 </div>
               </div>
+
               <div class="field is-horizontal">
                 <div class="field-label is-normal">
-                  <label class="label">HC Places</label>
+                  <label class="label">Scoring</label>
                 </div>
                 <div class="field-body">
                   <div class="field is-narrow">
                     <div class="control">
                       <div class="select is-fullwidth">
-                        <select v-model="hcs">
-                          <option>1</option>
-                          <option>2</option>
-                          <option>3</option>
-                          <option>4</option>
+                        <select v-model="selected">
+                          <option value="placed">1st, 2nd, 3rd, HC</option>
                         </select>
                       </div>
+                    </div>
+                  </div>
+                  <div class="field is-horizontal">
+                    <div class="field-label is-normal">
+                      <label class="label">HC Places</label>
+                    </div>
+                    <div class="field-body">
+                      <div class="field is-narrow">
+                        <div class="control">
+                          <div class="select is-fullwidth">
+                            <select v-model="hcs">
+                              <option>1</option>
+                              <option>2</option>
+                              <option>3</option>
+                              <option>4</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+
+
+              <div class="field is-horizontal">
+                <div class="field-label">
+                  <label class="label">Randomise Images</label>
+                </div>
+                <div class="field-body">
+                  <div class="field is-narrow">
+                    <div class="control">
+                      <label class="radio">
+                        <input type="radio" name="member" value='true' v-model="randomised">
+                        Yes
+                      </label>
+                      <label class="radio">
+                        <input type="radio" name="member" value='false' v-model="randomised">
+                        No
+                      </label>
                     </div>
                   </div>
                 </div>
@@ -108,25 +129,6 @@ const hcs = ref(3)
 
 
 
-          <div class="field is-horizontal">
-            <div class="field-label">
-              <label class="label">Randomise Images</label>
-            </div>
-            <div class="field-body">
-              <div class="field is-narrow">
-                <div class="control">
-                  <label class="radio">
-                    <input type="radio" name="member" value='true' v-model="randomised">
-                    Yes
-                  </label>
-                  <label class="radio">
-                    <input type="radio" name="member" value='false' v-model="randomised">
-                    No
-                  </label>
-                </div>
-              </div>
-            </div>
-          </div>
           <footer class="modal-card-foot">
             <div class="buttons">
               <button class="button is-success" @click="closeUpdate">Close and update list</button>

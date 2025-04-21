@@ -154,12 +154,16 @@ public class CompetitionImage {
 
     }
 
+   
+
     protected String scale(float size) {
         try {
             BufferedImage image = ImageIO.read(this.filePath.toFile());
             var width = image.getWidth();
             var height = (int) (image.getHeight() * (size / width));
+
             logger.info(width + " " + image.getHeight());
+         
             Image tb = image.getScaledInstance((int) size, -1, Image.SCALE_DEFAULT);
 
             BufferedImage outputImage = new BufferedImage((int) size, height, BufferedImage.TYPE_INT_RGB);

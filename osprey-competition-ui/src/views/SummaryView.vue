@@ -6,22 +6,43 @@ import { useCompetitionStore } from '@/stores/competitionstate';
 import { FIRST, HC, HELD_BACK, REJECTED, SECOND, THIRD, type CompetitionImage, type Filter } from '@/types';
 import { reactive, ref, watch } from 'vue';
 import StateComponent from '@/components/StateComponent.vue';
+import StatusComponent from '@/components/StatusComponent.vue';
 import { placeStyle } from '@/helpers';
 
-const runthroughTime = 1000;
+const runthroughTime = 3000;
 
 const comp = useCompetitionStore();
 const statusIndicator = reactive({
   runthrough: false,
   critique: false,
-  loadImages: false
+  loadImages: false,
+  loadImagesDialog: false
 })
 
+const displayState = ref("full");
+
+async function display(d: string) {
+  displayState.value = d;
+  switch (d) {
+    case "full":
+      comp.setDisplayFullImage();
+      break;
+    case "lightbox":
+      comp.setLightBoxFiltered(filterState);
+      break;
+    case "results":
+      comp.setResults();
+      break;
+  }
+
+}
+
 async function rowSelected(row: string) {
+  console.log("Row selected " + row);
   comp.setSelected(row)
 }
 
-const availableScores = ref([FIRST, SECOND, THIRD, HC])
+
 
 const filterState: Filter = reactive({ 'unseen': true, 'held_back': true, 'rejected': false, placed: false, scored: false })
 
@@ -36,6 +57,10 @@ function imageKeptFiltered(img: CompetitionImage) {
   }
 
   if (img.state.kept == REJECTED && !filterState['rejected']) {
+    return false;
+  }
+
+  if (img.state.kept == 'placed' && !filterState['placed']) {
     return false;
   }
 
@@ -62,9 +87,11 @@ async function action(cmd: string) {
   }
 }
 
-async function doneLoadImages(){
+async function doneLoadImages() {
+  statusIndicator.loadImagesDialog = false;
+  await comp.initCatalog();
+  await comp.updateList();
   statusIndicator.loadImages = false;
-  await comp.updateList()
 }
 
 function runthrough() {
@@ -90,14 +117,7 @@ async function startCritque() {
 }
 
 async function awardScore(img: CompetitionImage, score: string) {
-  if (availableScores.value.includes(score)) {
-    img.state.place = score;
-
-    if (score != HC) {
-      availableScores.value = availableScores.value.filter(s => score != s)
-    }
-    comp.placeImg(img.id, score);
-  }
+  comp.placeImg(img.id, score);
 }
 
 
@@ -137,7 +157,7 @@ watch(displayImageId, (d) => {
       <div class="navbar-start">
         <a class="navbar-item">
           <button class="button " :class="{ 'is-loading': statusIndicator.loadImages }"
-            @click="statusIndicator.loadImages = true">Load
+            @click="statusIndicator.loadImagesDialog = true">Load
             Images</button>
         </a>
         <a class="navbar-item">
@@ -183,9 +203,13 @@ watch(displayImageId, (d) => {
               </div>
             </div>
             <div class="level-right">
-              <span class="button level-item" @click="comp.setDisplayFullImage()">Full Image</span>
-              <span class="button level-item" @click="comp.setLightBoxFiltered(filterState)">Lightbox</span>
-              <span class="button level-item" @click="comp.setResults()">Results</span>
+              <span class="button level-item" :class="{ 'is-focused': displayState === 'full' }"
+                @click="display('full')">Full
+                Image</span>
+              <span class="button level-item" :class="{ 'is-focused': displayState === 'lightbox' }"
+                @click="display('lightbox')">Lightbox</span>
+              <span class="button level-item" :class="{ 'is-focused': displayState === 'results' }"
+                @click="display('results')">Results</span>
             </div>
           </div>
 
@@ -205,8 +229,9 @@ watch(displayImageId, (d) => {
                   <img :src="`data:image/png;base64,${item.thumbnailB64}`" alt=" Red dot" />
                 </td>
                 <td>
-                  <span v-show="item.state.place == ''" v-for="(score) in availableScores" class="button is-small m-2"
-                    :class="placeStyle(score)" :key="score" @click="awardScore(item, score)">
+                  <span v-show="item.state.place == ''" v-for="(score) in comp.availableScores"
+                    class="button is-small m-2" :class="placeStyle(score)" :key="score"
+                    @click.stop="awardScore(item, score)">
                     {{ score }}</span>
                 </td>
               </tr>
@@ -252,13 +277,17 @@ watch(displayImageId, (d) => {
           </table>
         </div>
 
+        <div class="box">
+          <StatusComponent />
+        </div>
+
       </div>
 
 
     </div>
 
   </div>
-  <LoadImagesComponent :active="statusIndicator.loadImages" @done="doneLoadImages" />
+  <LoadImagesComponent :active="statusIndicator.loadImagesDialog" @done="doneLoadImages" />
 </template>
 
 <style lang="css">

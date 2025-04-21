@@ -1,17 +1,17 @@
-import { ref, type Ref, reactive, type Reactive } from 'vue'
+import { ref, type Ref } from 'vue'
 import { defineStore } from 'pinia'
 import {
+  FIRST,
   FULL_IMAGE,
+  HC,
   HELD_BACK,
   LIGHT_BOX_IMAGES,
   REJECTED,
+  SECOND,
+  THIRD,
   UNSEEN,
-  FIRST,
   type CompetitionImage,
   type CompetitionSettings,
-  HC,
-  THIRD,
-  SECOND,
 } from '@/types'
 import { BACKEND_URI } from '@/config'
 import axios, { type AxiosResponse } from 'axios'
@@ -28,14 +28,28 @@ export const useCompetitionStore = defineStore('competition', () => {
     imageSrc: '',
   })
 
-  async function persistSettings(settings: CompetitionSettings){
-    competitionSettings.value=settings;
-    return await axios.post(`${BACKEND_URI}/action/persistconfig`,
-      competitionSettings.value
-   )
+  const availableScores = ref([FIRST, SECOND, THIRD, HC, HELD_BACK, REJECTED])
+  const numberScoresAvailable: Map<string, number> = new Map([
+    [FIRST, 1],
+    [SECOND, 1],
+    [THIRD, 1],
+    [HC, 3],
+    [HELD_BACK, -1],
+    [REJECTED, -1],
+  ])
+
+  async function persistSettings() {
+    // competitionSettings.value = settings
+    return await axios.post(`${BACKEND_URI}/action/persistconfig`, competitionSettings.value)
   }
 
-  async function initCatalog(){
+  async function getSettings() {
+    const data = await axios.get(`${BACKEND_URI}/action/persistconfig`)
+    console.log(data)
+    competitionSettings.value = data.data
+  }
+
+  async function initCatalog() {
     return await axios.get(`${BACKEND_URI}/images/load`)
   }
 
@@ -102,7 +116,6 @@ export const useCompetitionStore = defineStore('competition', () => {
     return -1
   }
 
-
   /** Request results be displayed */
   async function getImageSrc(): Promise<string> {
     const resp: AxiosResponse = await axios.get(`${BACKEND_URI}/action/imagesrc`)
@@ -146,7 +159,7 @@ export const useCompetitionStore = defineStore('competition', () => {
           return true
         }
 
-        return false
+        return filters[compImg.state.kept] === true
       })
       .map((compImg) => compImg.id)
       .join(',')
@@ -170,17 +183,41 @@ export const useCompetitionStore = defineStore('competition', () => {
     displayedImageIndex = -1
   }
 
-  async function placeImg(id: string, place: string) {
-    data.value[findImage(id)].state.place = place
-    await axios.post(`${BACKEND_URI}/images/state/${id}`, data.value[findImage(id)].state)
-  }
-
   async function scoreCurrent(kept: string) {
-    data.value[displayedImageIndex].state.kept = kept
-    await axios.post(
-      `${BACKEND_URI}/images/state/${data.value[displayedImageIndex].id}`,
-      data.value[displayedImageIndex].state,
-    )
+    await scoreImg(displayedImageIndex, kept)
+    // data.value[displayedImageIndex].state.kept = kept
+    // await axios.post(
+    //   `${BACKEND_URI}/images/state/${data.value[displayedImageIndex].id}`,
+    //   data.value[displayedImageIndex].state,
+    // )
+  }
+  async function placeImg(id: string, score: string) {
+    const imageId = findImage(id)
+    await scoreImg(imageId, score)
+
+    // data.value[imageId].state.kept = 'placed'
+    // await axios.post(`${BACKEND_URI}/images/state/${id}`, data.value[imageId].state)
+  }
+  async function scoreImg(imageIndex: number, score: string) {
+    if (availableScores.value.includes(score)) {
+      const keptType =
+        score === FIRST || score === SECOND || score === THIRD || score === HC ? 'placed' : score
+      data.value[imageIndex].state.kept = keptType
+      data.value[imageIndex].state.place = keptType === 'placed' ? score : ''
+
+      await axios.post(
+        `${BACKEND_URI}/images/state/${data.value[imageIndex].id}`,
+        data.value[imageIndex].state,
+      )
+
+      const available: number = numberScoresAvailable?.get(score) || 0
+      if (available > 0) {
+        numberScoresAvailable?.set(score, available - 1)
+        availableScores.value = availableScores.value.filter(
+          (s) => numberScoresAvailable.get(s) != 0,
+        )
+      }
+    }
   }
 
   return {
@@ -202,5 +239,7 @@ export const useCompetitionStore = defineStore('competition', () => {
     persistSettings,
     getImageSrc,
     initCatalog,
+    getSettings,
+    availableScores,
   }
 })

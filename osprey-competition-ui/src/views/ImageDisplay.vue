@@ -33,7 +33,7 @@ function placeStyle(place: string) {
         {{ comp.images[0].title }}
       </div>
     </div>
-    <div v-if="comp.displayType == 'light_box_images'" class="">
+    <div v-else-if="comp.displayType == 'light_box_images'" class="">
 
       <div class="grid is-col-min-15 lightbox p-6">
         <div class="cell " v-for="i in comp.images" :key="i.id">
@@ -64,7 +64,7 @@ function placeStyle(place: string) {
 
       </div>
     </div>
-    <div v-if="comp.displayType == 'light_box_results'" class="">
+    <div v-else-if="comp.displayType == 'light_box_results'" class="">
 
       <div class="grid is-col-min-15 lightbox p-6">
         <div class="cell " v-for="i in comp.images" :key="i.id">
@@ -92,6 +92,18 @@ function placeStyle(place: string) {
 
       </div>
     </div>
+    <div v-else>
+
+      <section class="hero">
+        <div class="hero-body">
+          <figure class="image is-128x128">
+            <img src="@/assets/logo-white-bkg-200x200.png" />
+          </figure>
+          <p class="title">Bishop's Waltham Photographic Society</p>
+          <p class="title">PDI Competition</p>
+        </div>
+      </section>
+    </div>
   </div>
 
 </template>
@@ -102,6 +114,7 @@ function placeStyle(place: string) {
 
 html {
   background-color: #808080;
+  overflow: hidden;
 }
 
 .singleimg {
