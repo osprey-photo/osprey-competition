@@ -39,10 +39,8 @@ function placeStyle(place: string) {
         <div class="cell " v-for="i in comp.images" :key="i.id">
 
           <div class="card">
-
             <div class="card-image">
-
-              <img class="image p-3" :src="`data:image/png;base64,${i.halfishB64}`" alt=" Red dot" />
+              <img class="image is-1by1 p-3" :src="`data:image/png;base64,${i.halfishB64}`" alt=" Red dot" />
 
             </div>
             <div class="card-content">
@@ -64,7 +62,7 @@ function placeStyle(place: string) {
 
       </div>
     </div>
-    <div v-else-if="comp.displayType == 'light_box_results'" class="">
+    <div v-else-if="comp.displayType == 'light_box_images_results'" class="">
 
       <div class="grid is-col-min-15 lightbox p-6">
         <div class="cell " v-for="i in comp.images" :key="i.id">
@@ -92,6 +90,22 @@ function placeStyle(place: string) {
 
       </div>
     </div>
+    <div v-else-if="comp.displayType == 'full_image_results'" class="singleimg">
+
+      <img class="si" :src="`data:image/png;base64,${comp.images[0].fullImageB64}`" alt=" Red dot" />
+      <div class="notification img-title title">
+        <p>{{ comp.images[0].title }}</p>
+        <p><br /></p>
+        <p class="has-text-weight-semibold is-italic">{{ comp.images[0].photographer }}</p>
+        <p><br /></p>
+        <p>
+          <span class="button is-large m-1 mb-4" v-show="comp.images[0].state.place != ''"
+            :class="placeStyle(comp.images[0].state.place)">
+            {{ comp.images[0].state.place }}
+          </span>
+        </p>
+      </div>
+    </div>
     <div v-else>
 
       <section class="hero">
@@ -99,8 +113,9 @@ function placeStyle(place: string) {
           <figure class="image is-128x128">
             <img src="@/assets/logo-white-bkg-200x200.png" />
           </figure>
-          <p class="title">Bishop's Waltham Photographic Society</p>
-          <p class="title">PDI Competition</p>
+          <p><br></p>
+          <p class="title has-text-weight-semibold  has-text-light">Bishop's Waltham Photographic Society</p>
+          <p class="title is-3 has-text-weight-semibold has-text-light">PDI Competition</p>
         </div>
       </section>
     </div>
@@ -109,18 +124,20 @@ function placeStyle(place: string) {
 </template>
 <style lang="css">
 .lightbox {
-  background-color: #808080;
+  background-color: #505050;
+  max-height: 100vh;
+  overflow-y: auto;
 }
 
 html {
-  background-color: #808080;
-  overflow: hidden;
+  background-color: #505050;
+  overflow-y: hidden !important;
 }
 
 .singleimg {
 
   margin: 0;
-  background-color: #808080;
+  background-color: #505050;
   /* Mid-grey background */
   display: flex;
   justify-content: center;

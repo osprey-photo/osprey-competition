@@ -38,7 +38,11 @@ public class ImageCatalog {
 
     public List<CompetitionImage> getSummary() {
         if (images!=null){
-            return this.images.values().stream().collect(Collectors.toList());
+            return this.images.values().stream().collect(Collectors.collectingAndThen(Collectors.toList(), collected -> {
+                Collections.shuffle(collected);
+                return collected;
+            }));
+            //.collect(Collectors.toList());
         }
         return Collections.emptyList();
     }
@@ -63,6 +67,12 @@ public class ImageCatalog {
         var img = this.images.get(id);
         img.setState(state);
         return this;
+    }
+
+    public boolean writeSummaryCSV(){
+        var results = this.images.values().stream().map(e->e.toString()).collect(Collectors.joining("\n"));
+        this.fe.writeFile(results);
+        return true;
     }
 
     public List<CompetitionImage> getResults() {

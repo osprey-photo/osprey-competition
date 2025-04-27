@@ -28,6 +28,8 @@ export const HC = 'hc'
 export const UNSEEN = 'unseen'
 export const FULL_IMAGE = 'full_image'
 export const LIGHT_BOX_IMAGES = 'light_box_images'
+export const FULL_IMAGE_RESULTS = 'full_image_results'
+export const LIGHT_BOX_IMAGES_RESULTS = 'light_box_images_results'
 
 export type CompetitionSettings = {
   orderedValueScores: Array<string>

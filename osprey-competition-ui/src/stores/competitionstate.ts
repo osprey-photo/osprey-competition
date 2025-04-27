@@ -3,9 +3,11 @@ import { defineStore } from 'pinia'
 import {
   FIRST,
   FULL_IMAGE,
+  FULL_IMAGE_RESULTS,
   HC,
   HELD_BACK,
   LIGHT_BOX_IMAGES,
+  LIGHT_BOX_IMAGES_RESULTS,
   REJECTED,
   SECOND,
   THIRD,
@@ -15,6 +17,7 @@ import {
 } from '@/types'
 import { BACKEND_URI } from '@/config'
 import axios, { type AxiosResponse } from 'axios'
+import { orderPlace } from '@/helpers'
 
 export const useCompetitionStore = defineStore('competition', () => {
   let displayedImageIndex = -1
@@ -56,7 +59,7 @@ export const useCompetitionStore = defineStore('competition', () => {
   /** Load new images from the server */
   async function updateList() {
     const resp = await axios.get(`${BACKEND_URI}/images`)
-
+    data.value = []
     for (const img of resp.data) {
       const compImage: CompetitionImage = img
       compImage.state = { kept: '', place: '', score: -1 }
@@ -67,7 +70,7 @@ export const useCompetitionStore = defineStore('competition', () => {
   }
 
   /** Move to the next image to display */
-  async function next() {
+  async function next(showDetails: boolean) {
     displayedImageIndex++
     if (displayedImageIndex === data.value.length) {
       displayedImageIndex = 0
@@ -76,13 +79,13 @@ export const useCompetitionStore = defineStore('competition', () => {
 
     // tell server to move on to the next image
     await axios.post(`${BACKEND_URI}/action`, {
-      action: 'full_image',
+      action: showDetails ? FULL_IMAGE_RESULTS : FULL_IMAGE,
       payload: data.value[displayedImageIndex].id,
     })
   }
 
   /** move to the previous iamge */
-  async function previous() {
+  async function previous(showDetails: boolean) {
     displayedImageIndex--
     if (displayedImageIndex < 0) {
       displayedImageIndex = data.value.length - 1
@@ -91,17 +94,17 @@ export const useCompetitionStore = defineStore('competition', () => {
     displayImageId.value = data.value[displayedImageIndex].id
 
     await axios.post(`${BACKEND_URI}/action`, {
-      action: 'full_image',
+      action: showDetails ? FULL_IMAGE_RESULTS : FULL_IMAGE,
       payload: data.value[displayedImageIndex].id,
     })
   }
 
-  async function setSelected(row: string) {
+  async function setSelected(row: string, showDetails: boolean) {
     displayedImageIndex = findImage(row)
     displayImageId.value = row
     // tell server to move on to the next image
     await axios.post(`${BACKEND_URI}/action`, {
-      action: 'full_image',
+      action: showDetails ? FULL_IMAGE_RESULTS : FULL_IMAGE,
       payload: data.value[displayedImageIndex].id,
     })
   }
@@ -134,15 +137,22 @@ export const useCompetitionStore = defineStore('competition', () => {
   }
 
   /** Request the image be displayed full screen */
-  async function setDisplayFullImage() {
+  async function setDisplayFullImage(showDetails: boolean) {
     await axios.post(`${BACKEND_URI}/action`, {
-      action: FULL_IMAGE,
+      action: showDetails ? FULL_IMAGE_RESULTS : FULL_IMAGE,
+      payload: data.value[displayedImageIndex].id,
+    })
+  }
+
+  async function setBlankDisplay() {
+    await axios.post(`${BACKEND_URI}/action`, {
+      action: 'blank',
       payload: data.value[displayedImageIndex].id,
     })
   }
 
   /** Send the list of images to show in a light box to the server */
-  async function setLightBoxFiltered(filters: { [filter: string]: boolean }) {
+  async function setLightBoxFiltered(filters: { [filter: string]: boolean }, showDetails: boolean) {
     const filteredImgIds = data.value
       .filter((compImg) => {
         if (filters[HELD_BACK] === true && compImg.state.kept === HELD_BACK) {
@@ -166,7 +176,7 @@ export const useCompetitionStore = defineStore('competition', () => {
 
     console.log('Images filtered to ' + filteredImgIds)
     await axios.post(`${BACKEND_URI}/action`, {
-      action: LIGHT_BOX_IMAGES,
+      action: showDetails ? LIGHT_BOX_IMAGES_RESULTS : LIGHT_BOX_IMAGES,
       payload: filteredImgIds,
     })
   }
@@ -191,6 +201,31 @@ export const useCompetitionStore = defineStore('competition', () => {
     //   data.value[displayedImageIndex].state,
     // )
   }
+
+  function sort(reversedPlace: boolean) {
+    console.log(data.value)
+    data.value.sort((a: CompetitionImage, b: CompetitionImage) => {
+      if (a.state.kept === '' || a.state.kept === 'rejected') {
+        return 1
+      }
+      if (b.state.kept === '' || b.state.kept === 'rejected') {
+        return -1
+      }
+
+      if (a.state.kept === 'placed') {
+        if (b.state.kept === 'placed') {
+          if (reversedPlace) {
+            return orderPlace(a.state.place, b.state.place) * -1
+          } else {
+            return orderPlace(a.state.place, b.state.place)
+          }
+        }
+      }
+      return 0
+    })
+    console.log(data.value)
+  }
+
   async function placeImg(id: string, score: string) {
     const imageId = findImage(id)
     await scoreImg(imageId, score)
@@ -222,6 +257,7 @@ export const useCompetitionStore = defineStore('competition', () => {
 
   return {
     data,
+    sort,
     competitionSettings,
     next,
     previous,
@@ -240,6 +276,7 @@ export const useCompetitionStore = defineStore('competition', () => {
     getImageSrc,
     initCatalog,
     getSettings,
+    setBlankDisplay,
     availableScores,
   }
 })

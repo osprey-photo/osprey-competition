@@ -12,4 +12,8 @@ public class State {
     @JsonProperty
     public int score=-1;
 
+
+    public String toString(){
+        return kept+","+place;//+","+score;
+    }
 }

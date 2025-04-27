@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -14,9 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.vertx.mutiny.core.eventbus.EventBus;
-import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
-
 
 public class FileEngine {
     final Logger logger = LoggerFactory.getLogger(FileEngine.class);
@@ -24,7 +22,7 @@ public class FileEngine {
     EventBus bus;
     private Path basePath;
 
-    public FileEngine(String basePath,EventBus bus) {
+    public FileEngine(String basePath, EventBus bus) {
         this.bus = bus;
         this.basePath = Paths.get(basePath);
         if (!Files.exists(this.basePath)) {
@@ -32,6 +30,20 @@ public class FileEngine {
         }
         if (!Files.isDirectory(this.basePath)) {
             throw new RuntimeException("It should be a directory " + basePath);
+        }
+    }
+
+    public boolean writeFile(String data) {
+
+        try {
+            var writer = Files.newBufferedWriter(basePath.resolve("results.csv"));
+            writer.write(data);
+            writer.close();
+            return true;
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return false;
         }
     }
 

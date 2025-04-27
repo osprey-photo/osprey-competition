@@ -45,14 +45,14 @@ public class StatusControl {
     public void consume(String update) {
         try {
 
-        
+            if (session != null && session.isOpen()) {
 
-            session.getAsyncRemote().sendObject(update, result -> {
-                if (result.getException() != null) {
-                    logger.error("Unable to send message: " + result.getException());
-                }
-            });
-
+                session.getAsyncRemote().sendObject(update, result -> {
+                    if (result.getException() != null) {
+                        logger.error("Unable to send message: " + result.getException());
+                    }
+                });
+            }
         } catch (Exception e) {
             logger.error("JSON Processing", e);
             throw new RuntimeException(e);
