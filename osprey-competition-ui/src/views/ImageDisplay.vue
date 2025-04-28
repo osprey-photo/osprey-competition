@@ -22,6 +22,26 @@ function placeStyle(place: string) {
   }
 }
 
+function placeText(place: string){
+  switch (place) {
+    case FIRST:
+      return 'First'
+    case SECOND:
+      return 'Second'
+    case THIRD:
+      return 'Third'
+    case HC:
+      return 'HC'
+    case HELD_BACK:
+      return 'Held-back'
+    case REJECTED:
+      return ''
+    default:
+      console.log("Place text original "+place)
+      return ''
+  }
+}
+
 </script>
 
 <template>
@@ -48,11 +68,11 @@ function placeStyle(place: string) {
 
             </div>
             <div class="card-footer">
-              <span class="button is-large m-1 mb-4" v-show="i.state.kept != ''" :class="placeStyle(i.state.kept)">
-                {{ i.state.kept }}
+              <span class="button is-large m-1 mb-4" v-show="placeText(i.state.kept) != ''" :class="placeStyle(i.state.kept)">
+                {{ placeText(i.state.kept) }}
               </span>
-              <span class="button is-large m-1 mb-4" v-show="i.state.place != ''" :class="placeStyle(i.state.place)">
-                {{ i.state.place }}
+              <span class="button is-large m-1 mb-4" v-show="placeText(i.state.place) != ''" :class="placeStyle(i.state.place)">
+                {{ placeText(i.state.place) }}
               </span>
             </div>
           </div>
@@ -79,8 +99,8 @@ function placeStyle(place: string) {
               <p class="is-size-4 has-text-weight-semibold">{{ i.photographer }} </p>
             </div>
             <div class="card-footer">
-              <span class="button is-large m-1 mb-4" v-show="i.state.place != ''" :class="placeStyle(i.state.place)">
-                {{ i.state.place }}
+              <span class="button is-large m-1 mb-4" v-show="placeText(i.state.place) != ''" :class="placeStyle(i.state.place)">
+                {{ placeText(i.state.place) }}
               </span>
             </div>
           </div>
@@ -99,9 +119,9 @@ function placeStyle(place: string) {
         <p class="has-text-weight-semibold is-italic">{{ comp.images[0].photographer }}</p>
         <p><br /></p>
         <p>
-          <span class="button is-large m-1 mb-4" v-show="comp.images[0].state.place != ''"
+          <span class="button is-large m-1 mb-4" v-show="placeText(comp.images[0].state.place) != ''"
             :class="placeStyle(comp.images[0].state.place)">
-            {{ comp.images[0].state.place }}
+            {{ placeText(comp.images[0].state.place) }}
           </span>
         </p>
       </div>
