@@ -1,5 +1,10 @@
 package org.ospreyphoto.model;
 
+import static org.ospreyphoto.model.Constants.FIRST;
+import static org.ospreyphoto.model.Constants.HC;
+import static org.ospreyphoto.model.Constants.SECOND;
+import static org.ospreyphoto.model.Constants.THIRD;
+
 import java.util.List;
 import java.util.Map;
 
@@ -23,4 +28,13 @@ public class CompetitionSettings  {
     @JsonProperty
     public String imageSrc;
 
+
+    public static CompetitionSettings defaults(){
+        var defaults = new CompetitionSettings();
+        defaults.randomised = true;
+        defaults.imageSrc = System.getProperty("user.home");
+        defaults.orderedValueScores = List.of(FIRST, SECOND, THIRD, HC);
+        defaults.numberScoresAvailable = Map.of(FIRST, 1, SECOND, 1, THIRD, 1, HC, 3);
+        return defaults;
+    }
 }

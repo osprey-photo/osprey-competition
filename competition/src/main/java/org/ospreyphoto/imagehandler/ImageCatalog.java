@@ -5,6 +5,7 @@ import static org.ospreyphoto.model.Constants.HC;
 import static org.ospreyphoto.model.Constants.SECOND;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -19,12 +20,15 @@ import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.common.annotation.Blocking;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-
+import io.vertx.mutiny.core.eventbus.EventBus;
 @Singleton
 public class ImageCatalog {
 
     @Inject
     Config cfg;
+
+    @Inject
+    EventBus bus;
 
     @Inject
     AppState state;
@@ -33,7 +37,14 @@ public class ImageCatalog {
     private Map<String, CompetitionImage> images;
 
     public List<CompetitionImage> getSummary() {
-        return this.images.values().stream().collect(Collectors.toList());
+        if (images!=null){
+            return this.images.values().stream().collect(Collectors.collectingAndThen(Collectors.toList(), collected -> {
+                Collections.shuffle(collected);
+                return collected;
+            }));
+            //.collect(Collectors.toList());
+        }
+        return Collections.emptyList();
     }
 
     public CompetitionImage getImage(String id) {
@@ -56,6 +67,12 @@ public class ImageCatalog {
         var img = this.images.get(id);
         img.setState(state);
         return this;
+    }
+
+    public boolean writeSummaryCSV(){
+        var results = this.images.values().stream().map(e->e.toString()).collect(Collectors.joining("\n"));
+        this.fe.writeFile(results);
+        return true;
     }
 
     public List<CompetitionImage> getResults() {
@@ -98,7 +115,7 @@ public class ImageCatalog {
     private String loadFromDir() {
 
         String name = state.getSettings().imageSrc;
-        this.fe = new FileEngine(name);
+        this.fe = new FileEngine(name,this.bus);
         this.images = this.fe.scanImages().stream().collect(Collectors.toMap(CompetitionImage::getID, c -> c));
         return name;
 

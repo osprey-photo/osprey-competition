@@ -3,25 +3,49 @@
 import { storeToRefs } from 'pinia'
 import LoadImagesComponent from '@/components/LoadImagesComponent.vue';
 import { useCompetitionStore } from '@/stores/competitionstate';
-import { FIRST, HC, HELD_BACK, REJECTED, SECOND, THIRD, type CompetitionImage, type Filter } from '@/types';
-import { reactive, ref, watch } from 'vue';
+import { HELD_BACK, REJECTED, type CompetitionImage, type Filter } from '@/types';
+import { computed, reactive, ref, watch } from 'vue';
 import StateComponent from '@/components/StateComponent.vue';
+import StatusComponent from '@/components/StatusComponent.vue';
 import { placeStyle } from '@/helpers';
 
-const runthroughTime = 1000;
 
+const runthroughTime = ref(3000);
 const comp = useCompetitionStore();
 const statusIndicator = reactive({
   runthrough: false,
   critique: false,
-  loadImages: false
+  loadImages: false,
+  loadImagesDialog: false
 })
 
-async function rowSelected(row: string) {
-  comp.setSelected(row)
+const displayState = ref("full");
+const showDetails = ref(false);
+
+async function display(d: string) {
+  displayState.value = d;
+  switch (d) {
+    case "full":
+      comp.setDisplayFullImage(showDetails.value);
+      break;
+    case "lightbox":
+      comp.setLightBoxFiltered(filterState, showDetails.value);
+      break;
+    case "results":
+      comp.setResults();
+      break;
+    default:
+      comp.setBlankDisplay();
+  }
+
 }
 
-const availableScores = ref([FIRST, SECOND, THIRD, HC])
+async function rowSelected(row: string) {
+  console.log("Row selected " + row);
+  comp.setSelected(row, showDetails.value)
+}
+
+
 
 const filterState: Filter = reactive({ 'unseen': true, 'held_back': true, 'rejected': false, placed: false, scored: false })
 
@@ -39,6 +63,10 @@ function imageKeptFiltered(img: CompetitionImage) {
     return false;
   }
 
+  if (img.state.kept == 'placed' && !filterState['placed']) {
+    return false;
+  }
+
   return true;
 
 }
@@ -46,15 +74,15 @@ function imageKeptFiltered(img: CompetitionImage) {
 async function action(cmd: string) {
   switch (cmd) {
     case "next":
-      comp.next()
+      comp.next(showDetails.value)
       break;
     case "previous":
-      comp.previous()
+      comp.previous(showDetails.value)
       break;
     case HELD_BACK:
     case REJECTED:
       comp.scoreCurrent(cmd);
-      comp.next();
+      comp.next(showDetails.value);
       break;
 
     default:
@@ -62,9 +90,11 @@ async function action(cmd: string) {
   }
 }
 
-async function doneLoadImages(){
+async function doneLoadImages() {
+  statusIndicator.loadImagesDialog = false;
+  await comp.initCatalog();
+  await comp.updateList();
   statusIndicator.loadImages = false;
-  await comp.updateList()
 }
 
 function runthrough() {
@@ -72,35 +102,47 @@ function runthrough() {
   comp.resetIndex();
   statusIndicator.runthrough = true
   const intervalId = setInterval(async () => {
-    await comp.next();
+    await comp.next(false);
     if (comp.atLast()) {
       clearInterval(intervalId);
 
       // move back tostart
-      comp.next();
+      comp.next(showDetails.value);
       statusIndicator.runthrough = false
     }
-  }, runthroughTime);
+  }, runthroughTime.value);
 
 }
 
 async function startCritque() {
   comp.resetIndex()
-  comp.next()
+  comp.next(false)
 }
 
 async function awardScore(img: CompetitionImage, score: string) {
-  if (availableScores.value.includes(score)) {
-    img.state.place = score;
-
-    if (score != HC) {
-      availableScores.value = availableScores.value.filter(s => score != s)
-    }
-    comp.placeImg(img.id, score);
-  }
+  comp.placeImg(img.id, score);
 }
 
+const numberHeldBack = computed(() => {
+  const x = comp.data.filter((i: CompetitionImage) => {
+    return i.state.kept === HELD_BACK
+  });
+  return x.length;
+});
 
+const numberRejected = computed(() => {
+  const x = comp.data.filter((i: CompetitionImage) => {
+    return i.state.kept === REJECTED
+  });
+  return x.length;
+});
+
+const numberUnscored = computed(() => {
+  const x = comp.data.filter((i: CompetitionImage) => {
+    return i.state.kept === ""
+  });
+  return x.length;
+});
 
 function imageForScore(place: string): Array<CompetitionImage> {
   const filtered = comp.data.filter((i: CompetitionImage) => {
@@ -122,6 +164,7 @@ watch(displayImageId, (d) => {
 });
 
 
+
 </script>
 
 
@@ -137,7 +180,7 @@ watch(displayImageId, (d) => {
       <div class="navbar-start">
         <a class="navbar-item">
           <button class="button " :class="{ 'is-loading': statusIndicator.loadImages }"
-            @click="statusIndicator.loadImages = true">Load
+            @click="statusIndicator.loadImagesDialog = true">Load
             Images</button>
         </a>
         <a class="navbar-item">
@@ -183,9 +226,21 @@ watch(displayImageId, (d) => {
               </div>
             </div>
             <div class="level-right">
-              <span class="button level-item" @click="comp.setDisplayFullImage()">Full Image</span>
-              <span class="button level-item" @click="comp.setLightBoxFiltered(filterState)">Lightbox</span>
-              <span class="button level-item" @click="comp.setResults()">Results</span>
+              <span class="button level-item" :class="{ 'is-focused': displayState === 'full' }"
+                @click="display('full')">Full
+                Image</span>
+              <span class="button level-item" :class="{ 'is-focused': displayState === 'lightbox' }"
+                @click="display('lightbox')">Lightbox</span>
+              <span class="button level-item" :class="{ 'is-focused': displayState === 'blank' }"
+                @click="display('blank')">[]</span>
+              <label class="checkbox">
+                <input type="checkbox" v-model="showDetails" />
+                Photographer Name
+              </label>
+              <!-- <span class="button level-item" :class="{ 'is-focused': displayState === 'results' }"
+                @click="display('results')">Results</span> -->
+              <span class="button level-item" @click="comp.sort(false)">Results --&gt;</span>
+              <span class="button level-item" @click="comp.sort(true)">Results &lt;--</span>
             </div>
           </div>
 
@@ -205,8 +260,9 @@ watch(displayImageId, (d) => {
                   <img :src="`data:image/png;base64,${item.thumbnailB64}`" alt=" Red dot" />
                 </td>
                 <td>
-                  <span v-show="item.state.place == ''" v-for="(score) in availableScores" class="button is-small m-2"
-                    :class="placeStyle(score)" :key="score" @click="awardScore(item, score)">
+                  <span v-show="item.state.place == ''" v-for="(score) in comp.availableScores"
+                    class="button is-small m-2" :class="placeStyle(score)" :key="score"
+                    @click.stop="awardScore(item, score)">
                     {{ score }}</span>
                 </td>
               </tr>
@@ -238,6 +294,57 @@ watch(displayImageId, (d) => {
         </div>
 
         <div class="block">
+          <div class="level">
+            <button class="level-item button is-success" v-bind:disabled="false" @click="comp.setResults()">Save results
+              CSV</button>
+
+          </div>
+        </div>
+        <div class="block">
+          <div class="field is-grouped">
+            <div class="field is-grouped">
+              <div class="label">Heldback</div>
+              <div class="control">
+                {{ numberHeldBack }}
+              </div>
+            </div>
+
+            <div class="field is-grouped">
+              <div class="label">Rejected</div>
+              <div class="control">
+
+                {{ numberRejected }}
+
+              </div>
+            </div>
+            <div class="field is-grouped">
+              <div class="label">Unscored</div>
+              <div class="control">
+                {{ numberUnscored }}
+              </div>
+            </div>
+
+          </div>
+
+          <div class="field">
+            <label class="label">Runthrough Image time</label>
+            <div class="control">
+              <div class="select">
+                <select v-model="runthroughTime">
+                  <option value="3000">3s</option>
+
+                  <option value="4000">4s</option>
+                  <option value="5000">5s</option>
+                  <option value="6000">6s</option>
+                  <option value="8000">8s</option>
+                  <option value="10000">10s</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="block">
           <table>
             <tbody v-for="s in comp.competitionSettings.orderedValueScores" :key="s">
               <tr v-for="i in imageForScore(s)" :key="i.id">
@@ -252,13 +359,17 @@ watch(displayImageId, (d) => {
           </table>
         </div>
 
+        <div class="box">
+          <StatusComponent />
+        </div>
+
       </div>
 
 
     </div>
 
   </div>
-  <LoadImagesComponent :active="statusIndicator.loadImages" @done="doneLoadImages" />
+  <LoadImagesComponent :active="statusIndicator.loadImagesDialog" @done="doneLoadImages" />
 </template>
 
 <style lang="css">

@@ -1,5 +1,6 @@
 package org.ospreyphoto.model;
 
+import java.awt.Color;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
@@ -94,7 +95,7 @@ public class CompetitionImage {
     }
 
     public String toString() {
-        return "(" + this.id + ") " + this.title + " " + this.photographer + " [" + this.filePath + "]";
+        return "\"" + this.title + "\",\"" + this.photographer + "\"," + this.state;
     }
 
     public static final Builder builder() {
@@ -130,8 +131,8 @@ public class CompetitionImage {
                     .setTitle(title)
                     .setPhotographer(name);
             ci.thumbnailB64 = ci.scale(200.0f);
-            ci.halfishB64 = ci.scale(500.0f);
-            ci.state=state;
+            ci.halfishB64 = ci.scaleSized(0.25f);
+            ci.state = state;
             return ci;
 
         }
@@ -154,12 +155,56 @@ public class CompetitionImage {
 
     }
 
+    // 1600 x 1200
+    protected String scaleSized(float size) {
+        int targetedWidth = (int) (1600 * size);
+        int targetedHeight = (int) (1200 * size);
+        try {
+            BufferedImage image = ImageIO.read(this.filePath.toFile());
+            var width = image.getWidth();
+            var height = image.getHeight();
+
+            boolean isPortrait = height > width;
+            int xoffset = 0;
+            int yoffset = 0;
+            Image tb;
+            if (isPortrait) {
+                tb = image.getScaledInstance(-1, targetedHeight, Image.SCALE_DEFAULT);
+                xoffset = (targetedWidth - tb.getWidth(null)) / 2;
+            } else {
+                tb = image.getScaledInstance(targetedWidth, -1, Image.SCALE_DEFAULT);
+                yoffset = (targetedHeight - tb.getHeight(null)) / 2;
+            }
+
+            // var height = (int) (image.getHeight() * (size / width));
+            // Image tb = image.getScaledInstance((int) size, -1, Image.SCALE_DEFAULT);
+
+            BufferedImage outputImage = new BufferedImage(targetedWidth, targetedHeight, BufferedImage.TYPE_INT_RGB);
+            var graphics = outputImage.getGraphics();
+            graphics.setColor(Color.WHITE);
+            graphics.fillRect(0, 0, targetedWidth, targetedHeight);
+            graphics.drawImage(tb, xoffset, yoffset, null);
+            graphics.dispose();
+
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+            ImageIO.write(outputImage, "jpg", outputStream);
+            return Base64.getEncoder().encodeToString(outputStream.toByteArray());
+        } catch (IOException e) {
+
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+    }
+
     protected String scale(float size) {
         try {
             BufferedImage image = ImageIO.read(this.filePath.toFile());
             var width = image.getWidth();
             var height = (int) (image.getHeight() * (size / width));
+
             logger.info(width + " " + image.getHeight());
+
             Image tb = image.getScaledInstance((int) size, -1, Image.SCALE_DEFAULT);
 
             BufferedImage outputImage = new BufferedImage((int) size, height, BufferedImage.TYPE_INT_RGB);

@@ -11,5 +11,7 @@ public class Constants {
     public static final String UNSEEN = "unseen";
     public static final String FULL_IMAGE = "full_image";
     public static final String LIGHT_BOX_IMAGES = "light_box_images";
+    public static final String FULL_IMAGE_RESULTS = "full_image_results";
+    public static final String LIGHT_BOX_IMAGES_RESULTS = "light_box_images_results";
     public static final String RESULTS_SUMMARY = "light_box_results";
 }

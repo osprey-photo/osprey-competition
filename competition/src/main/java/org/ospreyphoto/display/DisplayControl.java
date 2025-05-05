@@ -1,7 +1,9 @@
 package org.ospreyphoto.display;
 
 import static org.ospreyphoto.model.Constants.FULL_IMAGE;
+import static org.ospreyphoto.model.Constants.FULL_IMAGE_RESULTS;
 import static org.ospreyphoto.model.Constants.LIGHT_BOX_IMAGES;
+import static org.ospreyphoto.model.Constants.LIGHT_BOX_IMAGES_RESULTS;
 import static org.ospreyphoto.model.Constants.RESULTS_SUMMARY;
 
 import java.util.List;
@@ -75,15 +77,18 @@ public class DisplayControl {
             DisplayMessage dm = new DisplayMessage();
             dm.displayType = action.action;
             switch (action.action) {
+                case FULL_IMAGE_RESULTS:
                 case FULL_IMAGE:
                     dm.images = List.of(catalog.getFullImage(action.payload));
 
                     break;
                 case LIGHT_BOX_IMAGES:
+                case LIGHT_BOX_IMAGES_RESULTS:
                     dm.images = catalog.getSetOfImages(action.payload);
                     break;
                 case RESULTS_SUMMARY:
-                    dm.images = catalog.getResults();
+                    // dm.images = catalog.getResults();
+                    catalog.writeSummaryCSV();
                 default:
                     break;
             }
