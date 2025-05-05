@@ -16,15 +16,16 @@ dependencies {
     implementation 'io.quarkus:quarkus-vertx'
     implementation 'io.quarkus:quarkus-websockets'
  // https://mvnrepository.com/artifact/tv.wunderbox/nativefiledialog
-    implementation 'tv.wunderbox:nativefiledialog:1.0.3'
+    // implementation 'tv.wunderbox:nativefiledialog:1.0.3'
     implementation('org.jboss.slf4j:slf4j-jboss-logmanager')
     // https://mvnrepository.com/artifact/org.slf4j/slf4j-api
     implementation 'org.slf4j:slf4j-api:2.0.17'
-
+    implementation 'org.tinylog:log4j1.2-api:2.7.0'
+    
     implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
  
     implementation 'io.quarkus:quarkus-config-yaml'
-   implementation 'com.github.steos.jnafilechooser:jnafilechooser:1.1.2'
+//    implementation 'com.github.steos.jnafilechooser:jnafilechooser:1.1.2'
     implementation 'io.quarkus:quarkus-arc'
     implementation 'io.quarkus:quarkus-rest-jackson'
     testImplementation 'io.quarkus:quarkus-junit5'
