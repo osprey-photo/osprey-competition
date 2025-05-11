@@ -35,15 +35,15 @@ jobs:
       uses: gradle/actions/setup-gradle@v4
 
     - name: Execute build
-      run: ./gradlew --info --stacktrace build -Dquarkus.package.jar.type=uber-jar
+      run: gradle --info --stacktrace build -Dquarkus.package.jar.type=uber-jar
       working-directory: competition
-      shell: bash
+      
 
     - name: Package Windows
       if: matrix.os == 'windows-latest'
       run: jpackage --verbose "@_build/jpackage.cfg" "@_build/jpackage-windows.cfg"
       working-directory: competition
-      shell: bash
+      
 
     - id: upload-installer
       name: Upload installer
