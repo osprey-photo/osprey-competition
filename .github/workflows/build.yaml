@@ -7,51 +7,77 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macOS-latest, windows-latest]
-        java: [ '17' ]
+        # os: [ubuntu-latest, macOS-latest, windows-latest]
+        os: [windows-latest]
+        java: [ '21' ]
+        node: [ '20' ]
       fail-fast: false
     name: ${{ matrix.os }}
     steps:
     - name: Git checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
+    - name: Use Node.js ${{ matrix.node }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node }}
+    - run: npm ci
+      working-directory: osprey-competition-ui    
+    - run: npm run build
+      working-directory: osprey-competition-ui
+    - run:  Copy-Item -Path ".\osprey-competition-ui\dist\*" -Destination ".\competition\src\main\resources\META-INF\resources\" -recurse -Force
+
     - name: Set up JDK
-      uses: actions/setup-java@v1
+      uses: actions/setup-java@v4
       with:
         java-version: ${{ matrix.java }}
-    - name: Echo JAVA_HOME
-      run: echo $JAVA_HOME
-
-    - name: Verify Gradle Wrapper
-      uses: gradle/wrapper-validation-action@v1
+        distribution: 'temurin'
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v4
 
     - name: Execute build
-      run: ./gradlew --info --stacktrace build
-    - name: Execute jlink
-      run: ./gradlew --info --stacktrace jlink
-    - name: Execute jpackage
-      run: ./gradlew --info --stacktrace jpackage
-    - name: Upload DMG as an artifact
-      uses: actions/upload-artifact@v3
+      run: ./gradlew --info --stacktrace build -Dquarkus.package.jar.type=uber-jar
+      working-directory: competition
+      shell: bash
+
+    - name: Package Windows
+      if: matrix.os == 'windows-latest'
+      run: jpackage --verbose "@_build/jpackage.cfg" "@_build/jpackage-windows.cfg"
+      working-directory: competition
+      shell: bash
+
+    - id: upload-installer
+      name: Upload installer
+      uses: actions/upload-artifact@v4
       with:
-        name: hellofx-jdk${{ matrix.java }}-${{ matrix.os }}-dmg
-        path: build/jpackage/*.dmg
-    - name: Upload EXE as an artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: hellofx-jdk${{ matrix.java }}-${{ matrix.os }}-exe
-        path: build/jpackage/*.exe
-    - name: Upload MSI as an artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: hellofx-jdk${{ matrix.java }}-${{ matrix.os }}-msi
-        path: build/jpackage/*.msi
-    - name: Upload DEB as an artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: hellofx-jdk${{ matrix.java }}-${{ matrix.os }}-deb
-        path: build/jpackage/*.deb
-    - name: Upload RPM as an artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: hellofx-jdk${{ matrix.java }}-${{ matrix.os }}-rpm
-        path: build/jpackage/*.rpm
+        path: ./_build/distributions/*.msi
+        name: windows-installer
+        # retention-days: 1
+    # - name: Execute jlink
+    #   run: ./gradlew --info --stacktrace jlink
+    # - name: Execute jpackage
+    #   run: ./gradlew --info --stacktrace jpackage
+    # - name: Upload DMG as an artifact
+    #   uses: actions/upload-artifact@v3
+    #   with:
+    #     name: hellofx-jdk${{ matrix.java }}-${{ matrix.os }}-dmg
+    #     path: build/jpackage/*.dmg
+    # - name: Upload EXE as an artifact
+    #   uses: actions/upload-artifact@v2
+    #   with:
+    #     name: hellofx-jdk${{ matrix.java }}-${{ matrix.os }}-exe
+    #     path: build/jpackage/*.exe
+    # - name: Upload MSI as an artifact
+    #   uses: actions/upload-artifact@v2
+    #   with:
+    #     name: hellofx-jdk${{ matrix.java }}-${{ matrix.os }}-msi
+    #     path: build/jpackage/*.msi
+    # - name: Upload DEB as an artifact
+    #   uses: actions/upload-artifact@v2
+    #   with:
+    #     name: hellofx-jdk${{ matrix.java }}-${{ matrix.os }}-deb
+    #     path: build/jpackage/*.deb
+    # - name: Upload RPM as an artifact
+    #   uses: actions/upload-artifact@v2
+    #   with:
+    #     name: hellofx-jdk${{ matrix.java }}-${{ matrix.os }}-rpm
+    #     path: build/jpackage/*.rpm
