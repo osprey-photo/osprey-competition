@@ -5,6 +5,7 @@ import org.ospreyphoto.config.Config;
 import org.ospreyphoto.model.Action;
 import org.ospreyphoto.model.CompetitionSettings;
 import org.ospreyphoto.nativeui.Controller;
+import org.ospreyphoto.nativeui.UIMain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,7 +14,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.core.eventbus.EventBus;
-import io.vertx.mutiny.core.eventbus.Message;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
@@ -22,6 +22,8 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
+import javafx.application.Platform;
+import javafx.concurrent.Task;
 
 @Path("/action")
 public class ActionController {
@@ -37,7 +39,7 @@ public class ActionController {
     AppState appstate;
 
     @Inject
-    Controller nativeui;
+    UIMain nativeui;
 
     @POST
     @Path("/persistconfig")
@@ -62,17 +64,23 @@ public class ActionController {
     @Path("/persistconfig")
     @Produces(MediaType.APPLICATION_JSON)
     public CompetitionSettings getConfig() {
-            return appstate.getSettings();
+        return appstate.getSettings();
     }
 
     @GET
     @Path("/imagesrc")
     public Uni<String> initCatalog() {
         logger.info("Requesting img src");
-        Uni<String> r = bus.<String>request("nativeui", "selectdir")
-                .onItem().transform(Message::body);
-        logger.info("Got result " + r);
-        return r;
+
+        final Task<String> dirChoice = new Task<String>() {
+            public String call() throws Exception {
+                String dir = nativeui.fileDialog();
+                return dir;
+            }
+        };
+        Platform.runLater(dirChoice);
+
+        return Uni.createFrom().future(dirChoice);
     }
 
     @POST
