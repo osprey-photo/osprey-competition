@@ -43,8 +43,12 @@ jobs:
 
         if [ "${{ github.ref_name }}" == "main" ]; then
           echo "0.0.0-DEV" > version.txt
+          echo "--main-jar competition-0.0.0-DEV-runner.jar" > _build/version.cfg
+          echo "--version 0.0.0" >> _build/version.cfg
         else
           echo ${{ github.ref_name }} > version.txt
+          echo "--main-jar competition-${{ github.ref_name }}-runner.jar" > _build/version.cfg
+          echo "--version ${{ github.ref_name }}" >> _build/version.cfg
         fi
 
         cat version.txt
