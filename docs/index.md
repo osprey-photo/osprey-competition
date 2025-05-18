@@ -8,7 +8,10 @@ permalink: /
 
 # Osprey Competition
 
-A head-head photographic competition - a different yet fun competition to get the whole club involved.
+Projected digital image competition software - we needed some new software to run our own club competitions. The softwaare that we had avaialble wasn't easy to use or very quick in operation. 
+
+_Please note that this is in it's early versions, so doesn't yet support all the variants of projected image competitions. It's had limited use in real 
+
 {: .fs-6 .fw-300 }
 
 
