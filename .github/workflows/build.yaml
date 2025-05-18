@@ -1,6 +1,12 @@
 name: Gradle Build
 
-on: [push, pull_request]
+on: 
+  push:
+    branches:
+      - main
+    tags:
+      - v*
+  pull_request:
 
 jobs:
   build:
@@ -24,6 +30,7 @@ jobs:
       working-directory: osprey-competition-ui    
     - run: npm run build
       working-directory: osprey-competition-ui
+
     - run:  Copy-Item -Path ".\osprey-competition-ui\dist\*" -Destination ".\competition\src\main\resources\META-INF\resources\" -recurse -Force
 
     - name: Set up JDK
@@ -37,7 +44,7 @@ jobs:
     - name: Execute build
       run: gradle --info --stacktrace build "-Dquarkus.package.jar.type=uber-jar"
       working-directory: competition
-      
+     
 
     - name: Package Windows
       if: matrix.os == 'windows-latest'
@@ -49,7 +56,18 @@ jobs:
       with:
         path: ./_build/distributions/*.msi
         name: windows-installer
-        # retention-days: 1
+        retention-days: 7
+
+
+    - id: publish
+      if: startsWith(github.event.ref, 'refs/tags/v')
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: ./_build/distributions/*.msi
+        asset_name: osprey-competition-windows
+        tag: ${{ github.ref }}
+
     # - name: Execute jlink
     #   run: ./gradlew --info --stacktrace jlink
     # - name: Execute jpackage
