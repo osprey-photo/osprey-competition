@@ -31,7 +31,21 @@ jobs:
     - run: npm run build
       working-directory: osprey-competition-ui
 
-    - run:  Copy-Item -Path ".\osprey-competition-ui\dist\*" -Destination ".\competition\src\main\resources\META-INF\resources\" -recurse -Force
+    - name: Copy
+      shell: bash
+      run:  |
+        rm -rf "./competition/src/main/resources/META-INF/resources/*
+        cp -r "./osprey-competition-ui/dist/*" "./competition/src/main/resources/META-INF/resources/"
+        ls -lart "./competition/src/main/resources/META-INF/resources/"
+
+        if [ ${{ github.ref_name }} -eq 'main' ]; then
+          echo "0.0.0-DEV" > version.txt
+        else
+          echo ${{ github.ref_name }} > verion.txt
+        fi
+
+        cat version.txt
+        
 
     - name: Set up JDK
       uses: actions/setup-java@v4
@@ -43,15 +57,7 @@ jobs:
 
     - name: Execute build
       run: gradle --info --stacktrace build "-Dquarkus.package.jar.type=uber-jar"
-      working-directory: competition
-     
-    - id: upload-installer
-      name: Upload installer
-      uses: actions/upload-artifact@v4
-      with:
-        path: ./_build/distributions/*.msi
-        name: windows-installer
-        retention-days: 7
+      working-directory: competition   
 
     - name: Package Windows
       if: matrix.os == 'windows-latest'
@@ -82,8 +88,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
-        path: ./_build/distributions/
-        name: windows-installer 
+          path: ./_build/distributions/
+          name: windows-installer 
       - id: publish
         uses: svenstaro/upload-release-action@v2
         with:

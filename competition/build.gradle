@@ -2,7 +2,6 @@ plugins {
     id 'java'
     id 'io.quarkus'
     id 'org.openjfx.javafxplugin' version '0.0.10'
-    id 'me.qoomon.git-versioning' version '6.4.4'
 }
 
 javafx {
@@ -46,22 +45,9 @@ dependencies {
 }
 
 group 'org.ospreyphoto'
-version '1.0.0-SNAPSHOT'
-gitVersioning.apply {
-    refs {
-        branch('.+') {
-            version = '${ref}-SNAPSHOT'
-        }
-        tag('v(?<version>.*)') {
-            version = '${ref.version}'
-        }
-    }
+version = rootProject.file('../version.txt').text.trim()
 
-    // optional fallback configuration in case of no matching ref configuration
-    rev {
-        version = '${commit}'
-    }
-}
+print(version)
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17
