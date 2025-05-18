@@ -45,6 +45,13 @@ jobs:
       run: gradle --info --stacktrace build "-Dquarkus.package.jar.type=uber-jar"
       working-directory: competition
      
+    - id: upload-installer
+      name: Upload installer
+      uses: actions/upload-artifact@v4
+      with:
+        path: ./_build/distributions/*.msi
+        name: windows-installer
+        retention-days: 7
 
     - name: Package Windows
       if: matrix.os == 'windows-latest'
@@ -58,15 +65,33 @@ jobs:
         name: windows-installer
         retention-days: 7
 
-
-    - id: publish
-      if: startsWith(github.event.ref, 'refs/tags/v')
-      uses: svenstaro/upload-release-action@v2
-      with:
-        repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: ./_build/distributions/*.msi
-        asset_name: osprey-competition-windows
-        tag: ${{ github.ref }}
+  release:
+    needs: build
+    if: startsWith(github.event.ref, 'refs/tags/v')
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        # os: [ubuntu-latest, macOS-latest, windows-latest]
+        os: [windows-latest]
+        java: [ '21' ]
+        node: [ '20' ]
+      fail-fast: false
+    name: ${{ matrix.os }}
+    
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+        path: ./_build/distributions/
+        name: windows-installer 
+      - id: publish
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ./_build/distributions/*.msi
+          asset_name: osprey-competition-windows
+          tag: ${{ github.ref }}
+          file_glob: true
 
     # - name: Execute jlink
     #   run: ./gradlew --info --stacktrace jlink
