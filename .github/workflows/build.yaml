@@ -41,7 +41,7 @@ jobs:
         cp -r ./osprey-competition-ui/dist/* "./competition/src/main/resources/META-INF/resources/"
         ls -lart "./competition/src/main/resources/META-INF/resources/"
 
-        if [ "${{ github.ref_name }}" -eq "main" ]; then
+        if [ "${{ github.ref_name }}" == "main" ]; then
           echo "0.0.0-DEV" > version.txt
         else
           echo ${{ github.ref_name }} > version.txt
