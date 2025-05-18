@@ -68,7 +68,7 @@ jobs:
 
     - name: Package Windows
       if: matrix.os == 'windows-latest'
-      run: jpackage --verbose "@_build/jpackage.cfg" "@_build/jpackage-windows.cfg"      
+      run: jpackage --verbose "@_build/version.cfg" "@_build/jpackage.cfg" "@_build/jpackage-windows.cfg"      
 
     - id: upload-installer
       name: Upload installer
