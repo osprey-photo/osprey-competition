@@ -34,6 +34,9 @@ jobs:
     - name: Copy
       shell: bash
       run:  |
+        pwd
+        ls -lart
+        ls ./osprey-competition-ui
         rm -rf "./competition/src/main/resources/META-INF/resources/*"
         cp -r "./osprey-competition-ui/dist/*" "./competition/src/main/resources/META-INF/resources/"
         ls -lart "./competition/src/main/resources/META-INF/resources/"
