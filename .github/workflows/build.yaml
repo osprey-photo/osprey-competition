@@ -48,7 +48,8 @@ jobs:
         else
           echo ${{ github.ref_name }} > version.txt
           echo "--main-jar competition-${{ github.ref_name }}-runner.jar" > _build/version.cfg
-          echo "--app-version ${{ github.ref_name }}" >> _build/version.cfg
+          APPV=${{ github.ref_name }}
+          echo "--app-version ${APPV:1} " >> _build/version.cfg
         fi
 
         cat version.txt
