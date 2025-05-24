@@ -38,13 +38,15 @@ jobs:
         cp -r "./osprey-competition-ui/dist/*" "./competition/src/main/resources/META-INF/resources/"
         ls -lart "./competition/src/main/resources/META-INF/resources/"
 
+
+
         if [ ${{ github.ref_name }} -eq 'main' ]; then
-          echo "0.0.0-DEV" > version.txt
+          echo "{\"ver\":\"0.0.0-DEV\"}" > version.json
         else
-          echo ${{ github.ref_name }} > verion.txt
+          echo "{\"ver\":\"${{ github.ref_name }}\"}" > version.json
         fi
 
-        cat version.txt
+        cat version.json
         
 
     - name: Set up JDK

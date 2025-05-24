@@ -8,6 +8,12 @@ quarkus:
       ~: true
       origins: "/.*/"
 
+  log:
+    file:
+      enable: true
+      path: "../application.log"
+      format: "%d{yyyy-MM-dd HH:mm:ss} %-5p [%c] (%t) %s%e%n"
+
 # Compeition configuration
 competition:
   file-location: /home/matthew/images/Named
