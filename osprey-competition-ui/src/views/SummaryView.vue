@@ -9,7 +9,8 @@ import StateComponent from '@/components/StateComponent.vue';
 import StatusComponent from '@/components/StatusComponent.vue';
 import { placeStyle } from '@/helpers';
 
-
+import SvgIcon from '@jamescoyle/vue-icon'
+import { mdiSortAscending,mdiSortDescending  } from '@mdi/js';
 const runthroughTime = ref(3000);
 const comp = useCompetitionStore();
 const statusIndicator = reactive({
@@ -90,11 +91,18 @@ async function action(cmd: string) {
   }
 }
 
+async function abortLoadImages(){
+  statusIndicator.loadImagesDialog = false;
+  statusIndicator.loadImages = false;
+
+}
+
 async function doneLoadImages() {
   statusIndicator.loadImagesDialog = false;
   await comp.initCatalog();
   await comp.updateList();
   statusIndicator.loadImages = false;
+
 }
 
 function runthrough() {
@@ -172,7 +180,7 @@ watch(displayImageId, (d) => {
   <nav class="navbar  is-dark" role="navigation" aria-label="main navigation">
     <div class="navbar-brand">
       <a class="navbar-item" href="https://bulma.io">
-        Osprey Competition
+        Osprey Compentition
       </a>
     </div>
 
@@ -226,21 +234,16 @@ watch(displayImageId, (d) => {
               </div>
             </div>
             <div class="level-right">
-              <span class="button level-item" :class="{ 'is-focused': displayState === 'full' }"
-                @click="display('full')">Full
-                Image</span>
-              <span class="button level-item" :class="{ 'is-focused': displayState === 'lightbox' }"
-                @click="display('lightbox')">Lightbox</span>
-              <span class="button level-item" :class="{ 'is-focused': displayState === 'blank' }"
-                @click="display('blank')">[]</span>
+
               <label class="checkbox">
                 <input type="checkbox" v-model="showDetails" />
                 Photographer Name
               </label>
-              <!-- <span class="button level-item" :class="{ 'is-focused': displayState === 'results' }"
-                @click="display('results')">Results</span> -->
-              <span class="button level-item" @click="comp.sort(false)">Results --&gt;</span>
-              <span class="button level-item" @click="comp.sort(true)">Results &lt;--</span>
+              <label> Sort Results</label>
+  
+  
+              <span class="button level-item" @click="comp.sort(false)"><svg-icon type="mdi" size="20" :path="mdiSortAscending"></svg-icon></span>
+              <span class="button level-item" @click="comp.sort(true)"><svg-icon type="mdi" size="20" :path="mdiSortDescending"></svg-icon></span>
             </div>
           </div>
 
@@ -272,6 +275,21 @@ watch(displayImageId, (d) => {
         </div>
       </div>
       <div class="column is-4">
+                <div class="block">
+          <div class="level">
+            
+              <span class="button level-item" :class="{ 'is-focused': displayState === 'full' }"
+                @click="display('full')">Full
+                Image</span>
+              <button class="button level-item pulse" :class="{ 'is-focused': displayState === 'lightbox' }"
+                @click="display('lightbox')">Lightbox</button>
+              <span class="button level-item" :class="{ 'is-focused': displayState === 'blank' }"
+                @click="display('blank')">[]</span>
+
+          
+            </div>
+          
+        </div>
         <div class="block">
           <div class="level">
             <button class="level-item button is-info" :class="{ 'is-loading': statusIndicator.runthrough }"
@@ -369,12 +387,34 @@ watch(displayImageId, (d) => {
     </div>
 
   </div>
-  <LoadImagesComponent :active="statusIndicator.loadImagesDialog" @done="doneLoadImages" />
+  <LoadImagesComponent :active="statusIndicator.loadImagesDialog" @done="doneLoadImages" @abort="abortLoadImages"/>
 </template>
 
 <style lang="css">
 .table-container {
   max-height: 80vh;
   overflow-y: auto;
+}
+
+.pulse {  /* Button default styles, customize them to match your button */
+  
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.7);
+    }
+
+    70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
+    }
+
+    100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+    }
 }
 </style>

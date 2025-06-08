@@ -28,3 +28,9 @@ build:
 
 
    https://github.com/sualeh/build-jpackage/blob/main/.github/workflows/build-jpackage.yml
+
+package-windows:
+  cd competition
+  gradle build "-Dquarkus.package.jar.type=uber-jar"
+  cd ..
+  jpackage --verbose "@_build/jpackage.cfg" "@_build/jpackage-windows.cfg" --main-jar competition-0.0.0-DEV-runner.jar

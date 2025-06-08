@@ -23,10 +23,7 @@ dependencies {
  // https://mvnrepository.com/artifact/tv.wunderbox/nativefiledialog
     implementation 'tv.wunderbox:nativefiledialog:1.0.3'
     implementation('org.jboss.slf4j:slf4j-jboss-logmanager')
-    // https://mvnrepository.com/artifact/org.slf4j/slf4j-api
-    // implementation 'org.slf4j:slf4j-api:2.0.17'
-    // implementation 'org.tinylog:log4j1.2-api:2.7.0'
-    //  implementation "org.tinylog:tinylog-impl:2.1.1"
+
 // https://mvnrepository.com/artifact/com.dustinredmond.fxtrayicon/FXTrayIcon
     implementation 'com.dustinredmond.fxtrayicon:FXTrayIcon:4.2.0'
 
@@ -45,7 +42,11 @@ dependencies {
 }
 
 group 'org.ospreyphoto'
-version = rootProject.file('../version.txt').text.trim()
+
+def jsonFile = rootProject.file('../version.json')
+def parsedJson = new groovy.json.JsonSlurper().parseText(jsonFile.text)
+
+version = parsedJson.ver
 
 print(version)
 

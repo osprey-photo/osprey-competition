@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useCompetitionStore } from '@/stores/competitionstate';
-import { onMounted, ref } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
 
 import { FIRST, HC, SECOND, THIRD, type CompetitionSettings } from '@/types';
 import StatusComponent from './StatusComponent.vue';
@@ -8,7 +8,7 @@ const props = defineProps<{
   active: boolean
 }>()
 
-const emit = defineEmits(['done'])
+const emit = defineEmits(['done','abort'])
 const comp = useCompetitionStore();
 
 
@@ -19,21 +19,20 @@ onMounted(() => {
   console.log(comp.competitionSettings)
 })
 
+async function load(){
+  status.loadImages = true
+  const d = await comp.getImageSrc();
+  status.loadImages = false
+}
+
 async function closeUpdate() {
-
-  // const settings: CompetitionSettings = {
-  //   orderedValueScores: [FIRST, SECOND, THIRD, HC],
-  //   numberScoresAvailable: new Map([[FIRST, 1], [SECOND, 1], [THIRD, 1], [HC, 3]]),
-  //   randomised: true,
-  //   imageSrc: filename.value
-  // }
-
   await comp.persistSettings();
-
-
-  // await comp.compSettings();
   emit("done")
 }
+
+const status = reactive({
+  loadImages:false
+})
 const randomised = ref(true)
 const selected = ref("placed")
 const hcs = ref(3)
@@ -47,7 +46,7 @@ const hcs = ref(3)
       <div class="modal-card">
         <header class="modal-card-head">
           <p class="modal-card-title">Create Critique</p>
-          <button @click="$emit('done')" class="delete" aria-label="close"></button>
+          <button @click="$emit('abort')" class="delete" aria-label="close"></button>
         </header>
 
         <div class="modal-card-body">
@@ -61,8 +60,7 @@ const hcs = ref(3)
                   <div class="field">
                     <input class="input is-success" type="text" placeholder="Full Directory Path"
                       v-model="comp.competitionSettings.imageSrc">
-                    <!-- <button class="button " @click="load" :class="{ 'is-loading': status.loadImages }">Select
-                  directory...</button> -->
+                    <button class="button " @click="load" :class="{ 'is-loading': status.loadImages }">Select directory...</button>
                   </div>
                 </div>
               </div>
@@ -132,7 +130,7 @@ const hcs = ref(3)
           <footer class="modal-card-foot">
             <div class="buttons">
               <button class="button is-success" @click="closeUpdate">Close and update list</button>
-              <button class="button">Cancel</button>
+              <button class="button" @click="$emit('abort')">Cancel</button>
             </div>
           </footer>
 
@@ -140,7 +138,7 @@ const hcs = ref(3)
 
       </div>
 
-      <button @click="$emit('done')" class="modal-close is-large" aria-label="close"></button>
+      <!-- <button @click="$emit('done')" class="modal-close is-large" aria-label="close"></button> -->
     </div>
   </div>
 </template>

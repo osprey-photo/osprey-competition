@@ -1,1 +1,0 @@
-jpackage --verbose "@_build/jpackage.cfg" "@_build/jpackage-windows.cfg"

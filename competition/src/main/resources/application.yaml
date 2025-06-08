@@ -9,10 +9,14 @@ quarkus:
       origins: "/.*/"
 
   log:
+    console:
+      format: "%d{yyyy-MM-dd HH:mm:ss} %-5p [%c] (%t) %s%e%n"
     file:
       enable: true
-      path: "../application.log"
+      path: "ospreycompetition.log"
       format: "%d{yyyy-MM-dd HH:mm:ss} %-5p [%c] (%t) %s%e%n"
+      rotation:
+        file-suffix: ".yyyy-MM-dd"
 
 # Compeition configuration
 competition:

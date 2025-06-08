@@ -25,7 +25,7 @@ jobs:
     - name: Use Node.js ${{ matrix.node }}
       uses: actions/setup-node@v4
       with:
-        node-version: ${{ matrix.node }}
+        node-version: 20
     - run: npm ci
       working-directory: osprey-competition-ui    
     - run: npm run build
@@ -34,26 +34,23 @@ jobs:
     - name: Copy
       shell: bash
       run:  |
-        pwd
-        ls -lart
-        ls ./osprey-competition-ui/dist
         rm -rf "./competition/src/main/resources/META-INF/resources/*"
         cp -r ./osprey-competition-ui/dist/* "./competition/src/main/resources/META-INF/resources/"
         ls -lart "./competition/src/main/resources/META-INF/resources/"
-  
-          
+           
         if [ "${{ github.ref_name }}" == "main" ]; then
           echo "{\"ver\":\"0.0.0-DEV\"}" > version.json
           echo "--main-jar competition-0.0.0-DEV-runner.jar" > _build/version.cfg
           echo "--app-version 0.0.0" >> _build/version.cfg
         else
-         echo "{\"ver\":\"${{ github.ref_name }}\"}" > version.json
+          echo "{\"ver\":\"${{ github.ref_name }}\"}" > version.json
           echo "--main-jar competition-${{ github.ref_name }}-runner.jar" > _build/version.cfg
           APPV=${{ github.ref_name }}
           echo "--app-version ${APPV:1} " >> _build/version.cfg
         fi
 
         cat version.json
+        cat _build/version.cfg
         
 
     - name: Set up JDK
@@ -65,7 +62,7 @@ jobs:
       uses: gradle/actions/setup-gradle@v4
 
     - name: Execute build
-      run: gradle --info --stacktrace build "-Dquarkus.package.jar.type=uber-jar"
+      run: gradle build "-Dquarkus.package.jar.type=uber-jar"
       working-directory: competition   
 
     - name: Package Windows
@@ -107,33 +104,3 @@ jobs:
           asset_name: osprey-competition-windows
           tag: ${{ github.ref }}
           file_glob: true
-
-    # - name: Execute jlink
-    #   run: ./gradlew --info --stacktrace jlink
-    # - name: Execute jpackage
-    #   run: ./gradlew --info --stacktrace jpackage
-    # - name: Upload DMG as an artifact
-    #   uses: actions/upload-artifact@v3
-    #   with:
-    #     name: hellofx-jdk${{ matrix.java }}-${{ matrix.os }}-dmg
-    #     path: build/jpackage/*.dmg
-    # - name: Upload EXE as an artifact
-    #   uses: actions/upload-artifact@v2
-    #   with:
-    #     name: hellofx-jdk${{ matrix.java }}-${{ matrix.os }}-exe
-    #     path: build/jpackage/*.exe
-    # - name: Upload MSI as an artifact
-    #   uses: actions/upload-artifact@v2
-    #   with:
-    #     name: hellofx-jdk${{ matrix.java }}-${{ matrix.os }}-msi
-    #     path: build/jpackage/*.msi
-    # - name: Upload DEB as an artifact
-    #   uses: actions/upload-artifact@v2
-    #   with:
-    #     name: hellofx-jdk${{ matrix.java }}-${{ matrix.os }}-deb
-    #     path: build/jpackage/*.deb
-    # - name: Upload RPM as an artifact
-    #   uses: actions/upload-artifact@v2
-    #   with:
-    #     name: hellofx-jdk${{ matrix.java }}-${{ matrix.os }}-rpm
-    #     path: build/jpackage/*.rpm

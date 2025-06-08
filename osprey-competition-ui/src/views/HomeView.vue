@@ -1,6 +1,11 @@
 <script setup lang="ts">
-
+import SvgIcon from '@jamescoyle/vue-icon'
+import { mdiSortAscending  } from '@mdi/js';
+import { ref } from 'vue';
+const mdi = ref(mdiSortAscending )
 </script>
+
+
 
 <template>
   <main>
@@ -12,7 +17,19 @@
             <img class="image" style="width:50vw;"
               src="@/assets/Invert-Solid-Osprey-logo-v3-trans.png">
           </div>
+
+<svg-icon type="mdi" :path="mdi"></svg-icon>asd
+
+           
         </div>
+
+<span class="icon-text has-text-info">
+  <span class="icon">
+    <i class="mdi mdi-sort-ascending"></i>
+  </span>
+  <span>Info</span>
+</span>
+
         <p class="title has-text-centered">Competition</p>
         </p>
       </div>

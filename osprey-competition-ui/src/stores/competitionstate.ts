@@ -123,10 +123,12 @@ export const useCompetitionStore = defineStore('competition', () => {
   async function getImageSrc(): Promise<string> {
     const resp: AxiosResponse = await axios.get(`${BACKEND_URI}/action/imagesrc`)
     if (resp.status == 200) {
+      competitionSettings.value.imageSrc=resp.data
       return resp.data
     }
     return ''
   }
+
 
   /** Request results be displayed */
   async function setResults() {
