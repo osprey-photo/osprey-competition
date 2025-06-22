@@ -12,9 +12,7 @@ public class Main {
     public static void main(String... args) {
         System.out.println("Running main method");
 
-
-        var s = ConfigProvider.getConfig().getConfigValue("quarkus.log.file.path");
-        
+        var s = ConfigProvider.getConfig().getConfigValue("quarkus.log.file.path");       
         System.out.println(s);
 
         // Thread t1 = new Thread(new Runnable() {

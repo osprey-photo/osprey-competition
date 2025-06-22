@@ -5,12 +5,19 @@
 set export
 set dotenv-load
 
+# use cmd.exe instead of sh:
+set shell := ["cmd.exe", "/c"]
+
 # set the current directory, and the location of the test dats
 CWDIR := justfile_directory()
 
 _default:
-  @just -f {{justfile()}} --list
+  @just -f "{{justfile()}}" --list
 
+ui_prod_win:  
+   cd {{CWDIR}}/osprey-competition-ui && npm i && npm run build
+   pwd
+   
 build:
    #!/bin/bash
 
