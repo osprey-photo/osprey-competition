@@ -150,7 +150,8 @@ function placeText(place: string){
 }
 
 html {
-  background-color: #505050;
+  /* background-color: #505050; */
+  background-color: black;
   overflow-y: hidden !important;
 }
 
