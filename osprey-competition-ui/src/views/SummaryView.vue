@@ -10,7 +10,7 @@ import StatusComponent from '@/components/StatusComponent.vue';
 import { placeStyle } from '@/helpers';
 
 import SvgIcon from '@jamescoyle/vue-icon'
-import { mdiSortAscending,mdiSortDescending  } from '@mdi/js';
+import { mdiSortAscending, mdiSortDescending } from '@mdi/js';
 const runthroughTime = ref(3000);
 const comp = useCompetitionStore();
 const statusIndicator = reactive({
@@ -91,7 +91,7 @@ async function action(cmd: string) {
   }
 }
 
-async function abortLoadImages(){
+async function abortLoadImages() {
   statusIndicator.loadImagesDialog = false;
   statusIndicator.loadImages = false;
 
@@ -105,18 +105,22 @@ async function doneLoadImages() {
 
 }
 
-function runthrough() {
+async function runthrough() {
 
   comp.resetIndex();
   statusIndicator.runthrough = true
+  await comp.next(false);
   const intervalId = setInterval(async () => {
     await comp.next(false);
     if (comp.atLast()) {
       clearInterval(intervalId);
 
       // move back tostart
-      comp.next(showDetails.value);
-      statusIndicator.runthrough = false
+      setTimeout(async () => {
+        comp.next(showDetails.value);
+        statusIndicator.runthrough = false
+      }, runthroughTime.value)
+
     }
   }, runthroughTime.value);
 
@@ -240,10 +244,12 @@ watch(displayImageId, (d) => {
                 Photographer Name
               </label>
               <label> Sort Results</label>
-  
-  
-              <span class="button level-item" @click="comp.sort(false)"><svg-icon type="mdi" size="20" :path="mdiSortAscending"></svg-icon></span>
-              <span class="button level-item" @click="comp.sort(true)"><svg-icon type="mdi" size="20" :path="mdiSortDescending"></svg-icon></span>
+
+
+              <span class="button level-item" @click="comp.sort(false)"><svg-icon type="mdi" size="20"
+                  :path="mdiSortAscending"></svg-icon></span>
+              <span class="button level-item" @click="comp.sort(true)"><svg-icon type="mdi" size="20"
+                  :path="mdiSortDescending"></svg-icon></span>
             </div>
           </div>
 
@@ -275,20 +281,20 @@ watch(displayImageId, (d) => {
         </div>
       </div>
       <div class="column is-4">
-                <div class="block">
+        <div class="block">
           <div class="level">
-            
-              <span class="button level-item" :class="{ 'is-focused': displayState === 'full' }"
-                @click="display('full')">Full
-                Image</span>
-              <button class="button level-item pulse" :class="{ 'is-focused': displayState === 'lightbox' }"
-                @click="display('lightbox')">Lightbox</button>
-              <span class="button level-item" :class="{ 'is-focused': displayState === 'blank' }"
-                @click="display('blank')">[]</span>
 
-          
-            </div>
-          
+            <span class="button level-item" :class="{ 'is-focused': displayState === 'full' }"
+              @click="display('full')">Full
+              Image</span>
+            <button class="button level-item" :class="{ 'is-focused': displayState === 'lightbox' }"
+              @click="display('lightbox')">Lightbox</button>
+            <span class="button level-item" :class="{ 'is-focused': displayState === 'blank' }"
+              @click="display('blank')">[blank]</span>
+
+
+          </div>
+
         </div>
         <div class="block">
           <div class="level">
@@ -387,7 +393,7 @@ watch(displayImageId, (d) => {
     </div>
 
   </div>
-  <LoadImagesComponent :active="statusIndicator.loadImagesDialog" @done="doneLoadImages" @abort="abortLoadImages"/>
+  <LoadImagesComponent :active="statusIndicator.loadImagesDialog" @done="doneLoadImages" @abort="abortLoadImages" />
 </template>
 
 <style lang="css">
@@ -396,25 +402,26 @@ watch(displayImageId, (d) => {
   overflow-y: auto;
 }
 
-.pulse {  /* Button default styles, customize them to match your button */
-  
+.pulse {
+  /* Button default styles, customize them to match your button */
+
   animation: pulse 1s infinite;
 }
 
 @keyframes pulse {
-    0% {
-        transform: scale(0.95);
-        box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.7);
-    }
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.7);
+  }
 
-    70% {
-        transform: scale(1);
-        box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
-    }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
+  }
 
-    100% {
-        transform: scale(0.95);
-        box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
-    }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+  }
 }
 </style>

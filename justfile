@@ -6,7 +6,8 @@ set export
 set dotenv-load
 
 # use cmd.exe instead of sh:
-set shell := ["cmd.exe", "/c"]
+# set shell := ["cmd.exe", "/c"]
+
 
 # set the current directory, and the location of the test dats
 CWDIR := justfile_directory()
@@ -14,10 +15,31 @@ CWDIR := justfile_directory()
 _default:
   @just -f "{{justfile()}}" --list
 
-ui_prod_win:  
+ui_dev:
+   @just ui_dev_{{os()}}
+
+[private]
+ui_dev_windows:
+   #! cmd /c
+   cd {{CWDIR}}/osprey-competition-ui && npm run dev
+
+# Runs production UI buidl
+ui_prod:
+   @just  ui_prod_{{os()}}
+
+[private]
+ui_prod_windows:  
+   #! cmd /c
    cd {{CWDIR}}/osprey-competition-ui && npm i && npm run build
-   pwd
    
+comp_dev:
+   @just  comp_dev_{{os()}}
+
+[private]
+comp_dev_windows:
+   #! cmd /c
+   cd {{CWDIR}}/competition && gradlew quarkusDev
+
 build:
    #!/bin/bash
 
