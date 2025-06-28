@@ -6,6 +6,7 @@ export type CompetitionImage = {
   halfishB64: string
   fullImageB64: string
   state: State
+  tempHidden: boolean
 }
 
 export type State = {

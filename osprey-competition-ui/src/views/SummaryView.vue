@@ -4,13 +4,13 @@ import { storeToRefs } from 'pinia'
 import LoadImagesComponent from '@/components/LoadImagesComponent.vue';
 import { useCompetitionStore } from '@/stores/competitionstate';
 import { HELD_BACK, REJECTED, type CompetitionImage, type Filter } from '@/types';
-import { computed, reactive, ref, watch } from 'vue';
+import { computed, onUpdated, reactive, ref, watch } from 'vue';
 import StateComponent from '@/components/StateComponent.vue';
 import StatusComponent from '@/components/StatusComponent.vue';
 import { placeStyle } from '@/helpers';
 
 import SvgIcon from '@jamescoyle/vue-icon'
-import { mdiSortAscending, mdiSortDescending } from '@mdi/js';
+import { mdiSortAscending, mdiSortDescending, mdiEyeOutline, mdiEyeOffOutline } from '@mdi/js';
 const runthroughTime = ref(3000);
 const comp = useCompetitionStore();
 const statusIndicator = reactive({
@@ -39,6 +39,26 @@ async function display(d: string) {
       comp.setBlankDisplay();
   }
 
+}
+
+/** Refresh the displayed state, if it's on that already */
+async function refreshDisplay(d: string){
+  if (displayState.value !== d) {
+    return
+  }
+  switch (d) {
+    case "full":
+      comp.setDisplayFullImage(showDetails.value);
+      break;
+    case "lightbox":
+      comp.setLightBoxFiltered(filterState, showDetails.value);
+      break;
+    case "results":
+      comp.setResults();
+      break;
+    default:
+      comp.setBlankDisplay();
+  }
 }
 
 async function rowSelected(row: string) {
@@ -84,6 +104,15 @@ async function action(cmd: string) {
     case REJECTED:
       comp.scoreCurrent(cmd);
       comp.next(showDetails.value);
+
+      // const { displayImageId } = storeToRefs(comp)
+      // const el = document.getElementById(displayImageId.value);
+      // el?.scrollIntoView({ behavior: "smooth" });
+      onUpdated(() => {
+        // text content should be the same as current `count.value`
+        console.log("hello......")
+      })
+
       break;
 
     default:
@@ -131,6 +160,11 @@ async function startCritque() {
   comp.next(false)
 }
 
+async function tempHide(img: CompetitionImage){
+  img.tempHidden = !img.tempHidden;
+  refreshDisplay('lightbox')
+}
+
 async function awardScore(img: CompetitionImage, score: string) {
   comp.placeImg(img.id, score);
 }
@@ -167,13 +201,20 @@ function imageForScore(place: string): Array<CompetitionImage> {
   return filtered;
 }
 
-
-
 const { displayImageId } = storeToRefs(comp)
-watch(displayImageId, (d) => {
-  const el = document.getElementById(d);
+onUpdated(() => {
+  const el = document.getElementById(displayImageId.value);
   el?.scrollIntoView({ behavior: "smooth" });
-});
+  // text content should be the same as current `count.value`
+
+})
+
+
+// 
+// watch(displayImageId, (d) => {
+//   
+//   
+// });
 
 
 
@@ -262,11 +303,14 @@ watch(displayImageId, (d) => {
                 :key="item.id" v-show="imageKeptFiltered(item) == true">
                 <td>{{ item.title }}</td>
                 <td>{{ item.photographer }}</td>
+                <td><svg-icon @click.stop="tempHide(item)" type="mdi" size="20"
+                    :path="item.tempHidden ? mdiEyeOffOutline : mdiEyeOutline"></svg-icon></td>
                 <td>
                   <StateComponent :state='item.state' />
                 </td>
                 <td>
-                  <img :src="`data:image/png;base64,${item.thumbnailB64}`" alt=" Red dot" />
+                  <img :class="{ 'greyscale': item.tempHidden }" :src="`data:image/png;base64,${item.thumbnailB64}`"
+                    alt=" Red dot" />
                 </td>
                 <td>
                   <span v-show="item.state.place == ''" v-for="(score) in comp.availableScores"
@@ -406,6 +450,11 @@ watch(displayImageId, (d) => {
   /* Button default styles, customize them to match your button */
 
   animation: pulse 1s infinite;
+}
+
+.greyscale {
+   opacity: 0.4;
+   filter: alpha(opacity=40);
 }
 
 @keyframes pulse {

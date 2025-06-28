@@ -63,6 +63,7 @@ export const useCompetitionStore = defineStore('competition', () => {
     for (const img of resp.data) {
       const compImage: CompetitionImage = img
       compImage.state = { kept: '', place: '', score: -1 }
+      compImage.tempHidden = false;
       data.value.push(compImage)
     }
 
@@ -123,12 +124,11 @@ export const useCompetitionStore = defineStore('competition', () => {
   async function getImageSrc(): Promise<string> {
     const resp: AxiosResponse = await axios.get(`${BACKEND_URI}/action/imagesrc`)
     if (resp.status == 200) {
-      competitionSettings.value.imageSrc=resp.data
+      competitionSettings.value.imageSrc = resp.data
       return resp.data
     }
     return ''
   }
-
 
   /** Request results be displayed */
   async function setResults() {
@@ -146,6 +146,7 @@ export const useCompetitionStore = defineStore('competition', () => {
     })
   }
 
+  /** Request the blank image page, just club title */
   async function setBlankDisplay() {
     await axios.post(`${BACKEND_URI}/action`, {
       action: 'blank',
@@ -157,6 +158,11 @@ export const useCompetitionStore = defineStore('competition', () => {
   async function setLightBoxFiltered(filters: { [filter: string]: boolean }, showDetails: boolean) {
     const filteredImgIds = data.value
       .filter((compImg) => {
+
+        if (compImg.tempHidden){
+          return false;
+        }
+
         if (filters[HELD_BACK] === true && compImg.state.kept === HELD_BACK) {
           return true
         }

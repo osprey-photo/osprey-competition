@@ -22,7 +22,7 @@ function placeStyle(place: string) {
   }
 }
 
-function placeText(place: string){
+function placeText(place: string) {
   switch (place) {
     case FIRST:
       return 'First'
@@ -37,7 +37,7 @@ function placeText(place: string){
     case REJECTED:
       return ''
     default:
-      console.log("Place text original "+place)
+      console.log("Place text original " + place)
       return ''
   }
 }
@@ -59,19 +59,21 @@ function placeText(place: string){
         <div class="cell " v-for="i in comp.images" :key="i.id">
 
           <div class="card">
-            <div class="card-image">
-              <img class="image is-1by1 p-3" :src="`data:image/png;base64,${i.halfishB64}`" alt=" Red dot" />
-
+            <div class="card-image p-4">
+              <figure class="image is-1by1">
+                <img :src="`data:image/png;base64,${i.halfishB64}`" alt=" Red dot" />
+              </figure>
             </div>
             <div class="card-content">
               <p class="is-italic is-size-4 has-text-weight-semibold">{{ i.title }} </p>
-
             </div>
             <div class="card-footer">
-              <span class="button is-large m-1 mb-4" v-show="placeText(i.state.kept) != ''" :class="placeStyle(i.state.kept)">
+              <span class="button is-large m-1 mb-4" v-show="placeText(i.state.kept) != ''"
+                :class="placeStyle(i.state.kept)">
                 {{ placeText(i.state.kept) }}
               </span>
-              <span class="button is-large m-1 mb-4" v-show="placeText(i.state.place) != ''" :class="placeStyle(i.state.place)">
+              <span class="button is-large m-1 mb-4 " v-show="placeText(i.state.place) != ''"
+                :class="placeStyle(i.state.place)">
                 {{ placeText(i.state.place) }}
               </span>
             </div>
@@ -88,18 +90,18 @@ function placeText(place: string){
         <div class="cell " v-for="i in comp.images" :key="i.id">
 
           <div class="card">
-
-            <div class="card-image">
-
-              <img class="image p-3" :src="`data:image/png;base64,${i.halfishB64}`" alt=" Red dot" />
-
+            <div class="card-image p-4">
+              <figure class="image is-1by1">
+                <img class="image" :src="`data:image/png;base64,${i.halfishB64}`" alt=" Red dot" />
+              </figure>
             </div>
             <div class="card-content">
               <p class="is-italic is-size-4 has-text-weight-bold">{{ i.title }} </p>
               <p class="is-size-4 has-text-weight-semibold">{{ i.photographer }} </p>
             </div>
             <div class="card-footer">
-              <span class="button is-large m-1 mb-4" v-show="placeText(i.state.place) != ''" :class="placeStyle(i.state.place)">
+              <span class="button is-large m-1 mb-4" v-show="placeText(i.state.place) != ''"
+                :class="placeStyle(i.state.place)">
                 {{ placeText(i.state.place) }}
               </span>
             </div>
@@ -141,10 +143,23 @@ function placeText(place: string){
     </div>
   </div>
 
+  <!--  -->
 </template>
 <style lang="css">
+.card {
+
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-block {
+
+  height: 100%;
+}
+
 .lightbox {
-  background-color: #505050;
+  background-color: black;
   max-height: 100vh;
   overflow-y: auto;
 }
