@@ -12,6 +12,7 @@ import {
   SECOND,
   THIRD,
   UNSEEN,
+  type Competition,
   type CompetitionImage,
   type CompetitionSettings,
 } from '@/types'
@@ -25,9 +26,14 @@ export const useCompetitionStore = defineStore('competition', () => {
   const displayImageId = ref('')
 
   const competitionSettings: Ref<CompetitionSettings> = ref({
-    orderedValueScores: [] as Array<string>,
-    randomised: true,
-    numberScoresAvailable: {} as Map<string, number>,
+    competitions: {},
+    clubName: '',
+  })
+
+  const selectedCompetition: Ref<Competition> = ref({
+    orderedValueScores: [],
+    numberScoresAvailable: new Map<string, number>(),
+    randomised: false,
     imageSrc: '',
   })
 
@@ -46,10 +52,11 @@ export const useCompetitionStore = defineStore('competition', () => {
     return await axios.post(`${BACKEND_URI}/action/persistconfig`, competitionSettings.value)
   }
 
-  async function getSettings() {
+  async function getSettings(): Promise<CompetitionSettings> {
     const data = await axios.get(`${BACKEND_URI}/action/persistconfig`)
     console.log(data)
     competitionSettings.value = data.data
+    return competitionSettings.value;
   }
 
   async function initCatalog() {
@@ -63,7 +70,7 @@ export const useCompetitionStore = defineStore('competition', () => {
     for (const img of resp.data) {
       const compImage: CompetitionImage = img
       compImage.state = { kept: '', place: '', score: -1 }
-      compImage.tempHidden = false;
+      compImage.tempHidden = false
       data.value.push(compImage)
     }
 
@@ -124,7 +131,7 @@ export const useCompetitionStore = defineStore('competition', () => {
   async function getImageSrc(): Promise<string> {
     const resp: AxiosResponse = await axios.get(`${BACKEND_URI}/action/imagesrc`)
     if (resp.status == 200) {
-      competitionSettings.value.imageSrc = resp.data
+      selectedCompetition.value.imageSrc = resp.data
       return resp.data
     }
     return ''
@@ -158,9 +165,8 @@ export const useCompetitionStore = defineStore('competition', () => {
   async function setLightBoxFiltered(filters: { [filter: string]: boolean }, showDetails: boolean) {
     const filteredImgIds = data.value
       .filter((compImg) => {
-
-        if (compImg.tempHidden){
-          return false;
+        if (compImg.tempHidden) {
+          return false
         }
 
         if (filters[HELD_BACK] === true && compImg.state.kept === HELD_BACK) {

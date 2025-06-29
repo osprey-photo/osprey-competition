@@ -3,6 +3,7 @@ package org.ospreyphoto.restendpoint;
 import org.ospreyphoto.config.AppState;
 import org.ospreyphoto.config.Config;
 import org.ospreyphoto.model.Action;
+import org.ospreyphoto.model.Competition;
 import org.ospreyphoto.model.CompetitionSettings;
 import org.ospreyphoto.nativeui.Controller;
 import org.ospreyphoto.nativeui.UIMain;
@@ -52,7 +53,6 @@ public class ActionController {
             ObjectMapper mapper = new ObjectMapper();
             var actionJson = mapper.writeValueAsString(settinigs);
             logger.info(actionJson);
-            logger.info(appstate.getSettings().imageSrc);
             return "done";
         } catch (JsonProcessingException e) {
             logger.error("JSON processing exception ", e);
@@ -81,6 +81,19 @@ public class ActionController {
         Platform.runLater(dirChoice);
 
         return Uni.createFrom().future(dirChoice);
+    }
+
+    @GET
+    @Path("/currentcomp")
+    public String currentComp(){
+        return appstate.getCurrentCompetition();
+    }
+
+    
+    @POST
+    @Path("/currentcomp")
+    public void setCurrentComp(String name){
+        appstate.setCurrentCompetition(name);
     }
 
     @POST

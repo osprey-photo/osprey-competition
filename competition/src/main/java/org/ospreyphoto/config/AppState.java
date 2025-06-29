@@ -27,6 +27,7 @@ public class AppState {
     final Logger logger = LoggerFactory.getLogger(ImageResource.class);
 
     CompetitionSettings settings;
+    String currentCompetition = "";
 
     public CompetitionSettings getSettings() {
         if (this.settings == null) {
@@ -43,22 +44,22 @@ public class AppState {
         var home = System.getProperty("user.home");
         Path p = Paths.get(home, ".osprey", "ospreycompetition");
         Files.createDirectories(p);
-
-        File f =  p.resolve("data.json").toFile();
-        if (!f.exists()){
+        
+        File f = p.resolve("data.json").toFile();
+        logger.info(f.toString());
+        if (!f.exists()) {
             logger.info("Settings does not exist, creating");
-            settings=CompetitionSettings.defaults();
+            settings = CompetitionSettings.defaults();
             ObjectMapper mapper = new ObjectMapper();
             mapper.writeValue(f, settings);
         }
         return f;
     }
 
- 
     private void load() throws StreamReadException, DatabindException, IOException {
         ObjectMapper mapper = new ObjectMapper();
         this.settings = mapper.readValue(getFile(), CompetitionSettings.class);
-       
+
     }
 
     public AppState updateSettings(CompetitionSettings settings) {
@@ -66,7 +67,7 @@ public class AppState {
         try {
             ObjectMapper mapper = new ObjectMapper();
             this.settings = settings;
-            logger.info("Writing "+ mapper.writeValueAsString(settings));
+            logger.info("Writing " + mapper.writeValueAsString(settings));
             mapper.writeValue(getFile(), settings);
         } catch (IOException e) {
             // TODO Auto-generated catch block
@@ -75,5 +76,14 @@ public class AppState {
         }
 
         return this;
+
+    }
+
+    public void setCurrentCompetition(String name) {
+        this.currentCompetition = name;
+    }
+
+    public String getCurrentCompetition() {
+        return this.currentCompetition;
     }
 }

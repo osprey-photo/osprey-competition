@@ -26,7 +26,10 @@ const mdi = ref(mdiSortAscending)
 
         <div class="level">
           <div class="level-item has-text-centered">
-            <RouterLink to="/summary"><span class="button is-large">Summary</span></RouterLink>
+            <RouterLink to="/managecomp"><span class="button is-large">Manage Competitions</span></RouterLink>
+          </div>
+          <div class="level-item has-text-centered">
+            <RouterLink to="/runcomp"><span class="button is-large">Run Competition</span></RouterLink>
           </div>
           <div class="level-item has-text-centered">
             <RouterLink to="/display"><span class="button is-large">Display</span></RouterLink>

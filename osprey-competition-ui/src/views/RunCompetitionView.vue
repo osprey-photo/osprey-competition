@@ -42,7 +42,7 @@ async function display(d: string) {
 }
 
 /** Refresh the displayed state, if it's on that already */
-async function refreshDisplay(d: string){
+async function refreshDisplay(d: string) {
   if (displayState.value !== d) {
     return
   }
@@ -160,7 +160,7 @@ async function startCritque() {
   comp.next(false)
 }
 
-async function tempHide(img: CompetitionImage){
+async function tempHide(img: CompetitionImage) {
   img.tempHidden = !img.tempHidden;
   refreshDisplay('lightbox')
 }
@@ -241,6 +241,9 @@ onUpdated(() => {
         </a>
         <a class="navbar-item">
           <RouterLink class="button" to="display">Open Display</RouterLink>
+        </a>
+        <a class="navbar-item">
+          <RouterLink class="button" to="settings">Settings</RouterLink>
         </a>
       </div>
 
@@ -394,22 +397,7 @@ onUpdated(() => {
 
           </div>
 
-          <div class="field">
-            <label class="label">Runthrough Image time</label>
-            <div class="control">
-              <div class="select">
-                <select v-model="runthroughTime">
-                  <option value="3000">3s</option>
 
-                  <option value="4000">4s</option>
-                  <option value="5000">5s</option>
-                  <option value="6000">6s</option>
-                  <option value="8000">8s</option>
-                  <option value="10000">10s</option>
-                </select>
-              </div>
-            </div>
-          </div>
         </div>
 
         <div class="block">
@@ -453,8 +441,8 @@ onUpdated(() => {
 }
 
 .greyscale {
-   opacity: 0.4;
-   filter: alpha(opacity=40);
+  opacity: 0.4;
+  filter: alpha(opacity=40);
 }
 
 @keyframes pulse {

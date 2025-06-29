@@ -1,0 +1,39 @@
+{
+  "clubName": "Osprey Photo",
+  "competitions": {},
+  "scoringSystems": [
+    {
+      "id": "placed_3_hc_default",
+      "description": "Placed 1st,2nd,3d,HCx3 with heldback",
+      "orderedValueScores": ["First", "Second", "Third", "HC", "Unplaced"],
+      "heldBackList": true,
+      "randomised":true,
+      "numberScoresAvailable": {
+        "First": 1,
+        "Second": 1,
+        "Third": 1,
+        "HC": 3,
+        "Unplaced": -1
+      }
+    },
+    {
+      "id": "1-10_scored_default",
+      "description": "Placed 1st,2nd,3d,HCx3 with heldback",
+      "orderedValueScores": ["10", "9", "8", "7", "6", "5", "4", "3", "2", "1"],
+      "heldBackList": true,
+      "randomised":true,
+      "numberScoresAvailable": {
+        "10": -1,
+        "9": -1,
+        "8": -1,
+        "7": -1,
+        "6": -1,
+        "5": -1,
+        "4": -1,
+        "3": -1,
+        "2": -1,
+        "1": -1
+      }
+    }
+  ]
+}

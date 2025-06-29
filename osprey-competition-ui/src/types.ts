@@ -32,11 +32,23 @@ export const LIGHT_BOX_IMAGES = 'light_box_images'
 export const FULL_IMAGE_RESULTS = 'full_image_results'
 export const LIGHT_BOX_IMAGES_RESULTS = 'light_box_images_results'
 
-export type CompetitionSettings = {
+
+export type Competition = {
+  scoringSystem : ScoringSystem
+  competitionNames: Array<string>
+  imageSrc: string
+}
+export type ScoringSystem = {
   orderedValueScores: Array<string>
   numberScoresAvailable: Map<string, number>
   randomised: boolean
-  imageSrc: string
+  heldBackList: boolean
+}
+
+export type CompetitionSettings = {
+  competitions: {[name:string]:Competition}
+  clubName: string
+  scoringSystems: Array<ScoringSystem>
 }
 
 export type DisplayMessage = {
