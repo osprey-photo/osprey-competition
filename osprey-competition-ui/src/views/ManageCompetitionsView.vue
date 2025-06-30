@@ -1,32 +1,49 @@
 <script setup lang="ts">
 
-import { storeToRefs } from 'pinia'
-import { useCompetitionStore } from '@/stores/competitionstate';
-import { computed, onMounted, onUpdated, reactive, ref, watch } from 'vue';
 import NavBarComponent from '@/components/NavBarComponent.vue';
-import SvgIcon from '@jamescoyle/vue-icon'
-import { mdiSortAscending, mdiSortDescending, mdiEyeOutline, mdiEyeOffOutline } from '@mdi/js';
+import { useCompetitionStore } from '@/stores/competitionstate';
+import SvgIcon from '@jamescoyle/vue-icon';
+import { mdiDeleteOutline, mdiPresentationPlay } from '@mdi/js';
+import { onMounted, reactive, ref } from 'vue';
 const comp = useCompetitionStore();
+const router = useRouter();
+import LoadImagesComponent from '@/components/LoadImagesComponent.vue';
+import { useRouter } from 'vue-router';
 
 const statusIndicator = reactive({
-  runthrough: false,
-  critique: false,
-  loadImages: false,
+
   loadImagesDialog: false
 })
 
 const activeSection = ref('competition')
-const scoring = ref('placed')
-const hcs = ref(4)
-const randomised = ref(true)
-const runthroughTime = ref(3000)
 
 onMounted(() => {
   comp.getSettings()
 })
 
-async function save(){
+async function save() {
   await comp.persistSettings();
+}
+
+async function abortLoadImages() {
+  statusIndicator.loadImagesDialog = false;
+}
+
+async function doneLoadImages() {
+  statusIndicator.loadImagesDialog = false;
+}
+
+async function deleteComp(compId:string){
+  delete  comp.competitionSettings.competitions[compId];
+  await comp.persistSettings();
+}
+
+async function startComp(compId:string){
+  console.log("Starting comp "+compId);
+  comp.selectedCompetition = comp.competitionSettings.competitions[compId];
+  await comp.initCatalog(compId)
+  await comp.updateList()
+  router.push("runcomp")
 }
 
 </script>
@@ -48,7 +65,7 @@ async function save(){
             <div class="field">
               <div class="field-body">
                 <div class="field">
-                  <input class="input is-medium" type="text" v-model="comp.competitionSettings.clubName"/>
+                  <input class="input is-medium" type="text" v-model="comp.competitionSettings.clubName" />
                 </div>
               </div>
             </div>
@@ -57,12 +74,12 @@ async function save(){
         <div class="level-right">
 
 
-          <button class="button">New Critique...</button>
+          <button class="button" @click="statusIndicator.loadImagesDialog = true">New Critique...</button>
           <button class="button" @click="save">Save</button>
         </div>
       </div>
       <div class="table-container">
-        <table class="table is-striped is-fullwidth is-size-7">
+        <table class="table is-striped is-fullwidth">
           <thead>
             <tr class="has-background-white">
               <th class="px-6 py-3">
@@ -80,16 +97,25 @@ async function save(){
               <th class="px-6 py-3">
                 <span class="is-size-5">Summary</span>
               </th>
-
+              <th class="px-6 py-3">
+                <span class="is-size-5">Actions</span>
+              </th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(item,key) in comp.competitionSettings.competitions" :key="key" >
-              <td>item.orderedValueScores</td>
-              <td class="px-6 py-5 has-text-dark" style="border: none;">08.04.2021</td>
-              <td class="px-6 py-5 has-text-dark" style="border: none;">Code 5928MD01</td>
-              <td class="px-6 py-5 has-text-dark" style="border: none;">$2500.00</td>
-              <td class="px-6 py-5 has-text-dark" style="border: none;">$2500.00</td>
+            <tr v-for="(item, key) in comp.competitionSettings.competitions" :key="key">
+              <td>{{ item.competitionNames[0] }}</td>
+              <td>{{ item.competitionNames[1] }}</td>
+              <td>{{ item.imageSrc }}</td>
+              <td>{{ item.scoringSystem.id }}</td>
+              <td>
+                <!-- <a class="" @click="editComp(key)"><svg-icon type="mdi" size="20"
+                    :path="mdiNoteEditOutline"></svg-icon></a> -->
+                <a class="" @click="deleteComp(key as string)"><svg-icon type="mdi" size="20"
+                    :path="mdiDeleteOutline"></svg-icon></a>
+                <a class="" @click="startComp(key as string)"><svg-icon type="mdi" size="20"
+                    :path="mdiPresentationPlay"></svg-icon></a>
+              </td>
             </tr>
 
           </tbody>
@@ -112,7 +138,7 @@ async function save(){
         </div>
       </div>
     </div>
-
+    <LoadImagesComponent :active="statusIndicator.loadImagesDialog" @done="doneLoadImages" @abort="abortLoadImages" />
   </div>
 
 </template>

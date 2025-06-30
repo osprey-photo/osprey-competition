@@ -16,6 +16,9 @@ import org.ospreyphoto.config.Config;
 import org.ospreyphoto.model.Competition;
 import org.ospreyphoto.model.CompetitionImage;
 import org.ospreyphoto.model.State;
+import org.ospreyphoto.restendpoint.ImageResource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.common.annotation.Blocking;
@@ -24,6 +27,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 @Singleton
 public class ImageCatalog {
+ static final Logger logger = LoggerFactory.getLogger(ImageCatalog.class);
 
     @Inject
     Config cfg;
@@ -114,8 +118,9 @@ public class ImageCatalog {
     }
 
     private String loadFromDir() {
-
+        logger.info(state.getCurrentCompetition());
         Competition comp = state.getSettings().competitions.get(state.getCurrentCompetition());
+        logger.info("{}",state.getSettings().competitions.entrySet());
         String name = comp.imageSrc;
         this.fe = new FileEngine(name,this.bus);
         this.images = this.fe.scanImages().stream().collect(Collectors.toMap(CompetitionImage::getID, c -> c));

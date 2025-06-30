@@ -18,7 +18,7 @@
     },
     {
       "id": "1-10_scored_default",
-      "description": "Placed 1st,2nd,3d,HCx3 with heldback",
+      "description": "1-20 Scores with heldback",
       "orderedValueScores": ["10", "9", "8", "7", "6", "5", "4", "3", "2", "1"],
       "heldBackList": true,
       "randomised":true,

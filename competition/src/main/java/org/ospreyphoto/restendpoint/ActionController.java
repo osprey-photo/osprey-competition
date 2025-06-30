@@ -10,6 +10,7 @@ import org.ospreyphoto.nativeui.UIMain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -89,11 +90,15 @@ public class ActionController {
         return appstate.getCurrentCompetition();
     }
 
+    static class CompID{
+        @JsonProperty public String compId;
+    }
     
     @POST
     @Path("/currentcomp")
-    public void setCurrentComp(String name){
-        appstate.setCurrentCompetition(name);
+    public void setCurrentComp(CompID name){
+        logger.info("Setting current comp {}",name.compId);
+        appstate.setCurrentCompetition(name.compId);
     }
 
     @POST

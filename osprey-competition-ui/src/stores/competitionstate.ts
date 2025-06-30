@@ -59,7 +59,10 @@ export const useCompetitionStore = defineStore('competition', () => {
     return competitionSettings.value;
   }
 
-  async function initCatalog() {
+  async function initCatalog(compId: string) {
+    console.log("compid "+compId)
+    await axios.post(`${BACKEND_URI}/action/currentcomp/`,  {compId} )
+    console.log("done post")
     return await axios.get(`${BACKEND_URI}/images/load`)
   }
 
@@ -270,6 +273,7 @@ export const useCompetitionStore = defineStore('competition', () => {
   }
 
   return {
+    selectedCompetition,
     data,
     sort,
     competitionSettings,

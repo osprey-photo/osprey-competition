@@ -12,10 +12,10 @@
     <div id="navbarBasicExample" class="navbar-menu">
       <div class="navbar-start">
         <a class="navbar-item">
-          <RouterLink class="button" to="settings">Control</RouterLink>
+          <RouterLink class="button" to="managecomp">Manage</RouterLink>
         </a>
         <a class="navbar-item">
-          <RouterLink class="button" to="summary">Summary</RouterLink>
+          <RouterLink class="button" to="runcomp">Competition</RouterLink>
         </a>
         <a class="navbar-item">
           <RouterLink class="button" to="display">Open Display</RouterLink>
@@ -25,5 +25,5 @@
       <div class="navbar-end">
       </div>
     </div>
-  </nav> 
+  </nav>
 </template>

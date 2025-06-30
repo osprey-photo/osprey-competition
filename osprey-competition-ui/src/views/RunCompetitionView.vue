@@ -1,16 +1,16 @@
 <script setup lang="ts">
 
-import { storeToRefs } from 'pinia'
 import LoadImagesComponent from '@/components/LoadImagesComponent.vue';
-import { useCompetitionStore } from '@/stores/competitionstate';
-import { HELD_BACK, REJECTED, type CompetitionImage, type Filter } from '@/types';
-import { computed, onUpdated, reactive, ref, watch } from 'vue';
+import NavBarComponent from '@/components/NavBarComponent.vue';
 import StateComponent from '@/components/StateComponent.vue';
 import StatusComponent from '@/components/StatusComponent.vue';
 import { placeStyle } from '@/helpers';
-
-import SvgIcon from '@jamescoyle/vue-icon'
-import { mdiSortAscending, mdiSortDescending, mdiEyeOutline, mdiEyeOffOutline } from '@mdi/js';
+import { useCompetitionStore } from '@/stores/competitionstate';
+import { HELD_BACK, REJECTED, type CompetitionImage, type Filter } from '@/types';
+import SvgIcon from '@jamescoyle/vue-icon';
+import { mdiEyeOffOutline, mdiEyeOutline, mdiSortAscending, mdiSortDescending } from '@mdi/js';
+import { storeToRefs } from 'pinia';
+import { computed, onUpdated, reactive, ref } from 'vue';
 const runthroughTime = ref(3000);
 const comp = useCompetitionStore();
 const statusIndicator = reactive({
@@ -120,19 +120,19 @@ async function action(cmd: string) {
   }
 }
 
-async function abortLoadImages() {
-  statusIndicator.loadImagesDialog = false;
-  statusIndicator.loadImages = false;
+// async function abortLoadImages() {
+//   statusIndicator.loadImagesDialog = false;
+//   statusIndicator.loadImages = false;
 
-}
+// }
 
-async function doneLoadImages() {
-  statusIndicator.loadImagesDialog = false;
-  await comp.initCatalog();
-  await comp.updateList();
-  statusIndicator.loadImages = false;
+// async function doneLoadImages() {
+//   statusIndicator.loadImagesDialog = false;
+//   await comp.initCatalog();
+//   await comp.updateList();
+//   statusIndicator.loadImages = false;
 
-}
+// }
 
 async function runthrough() {
 
@@ -210,10 +210,10 @@ onUpdated(() => {
 })
 
 
-// 
+//
 // watch(displayImageId, (d) => {
-//   
-//   
+//
+//
 // });
 
 
@@ -222,35 +222,7 @@ onUpdated(() => {
 
 
 <template>
-  <nav class="navbar  is-dark" role="navigation" aria-label="main navigation">
-    <div class="navbar-brand">
-      <a class="navbar-item" href="https://bulma.io">
-        Osprey Compentition
-      </a>
-    </div>
-
-    <div id="navbarBasicExample" class="navbar-menu">
-      <div class="navbar-start">
-        <a class="navbar-item">
-          <button class="button " :class="{ 'is-loading': statusIndicator.loadImages }"
-            @click="statusIndicator.loadImagesDialog = true">Load
-            Images</button>
-        </a>
-        <a class="navbar-item">
-          <button class="button " @click="comp.updateList">Refresh List</button>
-        </a>
-        <a class="navbar-item">
-          <RouterLink class="button" to="display">Open Display</RouterLink>
-        </a>
-        <a class="navbar-item">
-          <RouterLink class="button" to="settings">Settings</RouterLink>
-        </a>
-      </div>
-
-      <div class="navbar-end">
-      </div>
-    </div>
-  </nav>
+  <NavBarComponent />
   <div class="section has-background-light">
     <div class="columns ">
       <div class="column">
@@ -402,7 +374,7 @@ onUpdated(() => {
 
         <div class="block">
           <table>
-            <tbody v-for="s in comp.competitionSettings.orderedValueScores" :key="s">
+            <tbody v-for="s in comp.selectedCompetition.scoringSystem.orderedValueScores" :key="s">
               <tr v-for="i in imageForScore(s)" :key="i.id">
                 <td class="p-1"><span class="subtitle">{{ s }}</span></td>
                 <td class="p-1"> <span class="subtitle has-text-weight-semibold">{{ i.title }}</span>
@@ -425,7 +397,7 @@ onUpdated(() => {
     </div>
 
   </div>
-  <LoadImagesComponent :active="statusIndicator.loadImagesDialog" @done="doneLoadImages" @abort="abortLoadImages" />
+  <!-- <LoadImagesComponent :active="statusIndicator.loadImagesDialog" @done="doneLoadImages" @abort="abortLoadImages" /> -->
 </template>
 
 <style lang="css">

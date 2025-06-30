@@ -26,6 +26,7 @@ public class UIMain {
     }
 
     public void start() {
+   
         stage = new Stage();
 
         directoryChooser = new DirectoryChooser();
@@ -71,6 +72,7 @@ public class UIMain {
                 .build();
         trayIcon.show();
         trayIcon.showInfoMessage("Osprey Competition Started");
+
     }
 
 

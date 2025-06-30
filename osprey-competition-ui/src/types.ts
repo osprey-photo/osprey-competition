@@ -39,6 +39,8 @@ export type Competition = {
   imageSrc: string
 }
 export type ScoringSystem = {
+  id: string,
+  description: string,
   orderedValueScores: Array<string>
   numberScoresAvailable: Map<string, number>
   randomised: boolean
