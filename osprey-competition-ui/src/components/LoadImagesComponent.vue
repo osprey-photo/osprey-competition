@@ -30,10 +30,10 @@ const newCompetition: Ref<Competition> = ref({
   imageSrc: ''
 });
 
-async function selectDefault(event){
+async function selectDefault(event: any) {
   const v = event.target.value;
-  console.log("Select Default " +v);
-  const defaultComp = comp.competitionSettings.scoringSystems.filter(i=>i.id === v);
+  console.log("Select Default " + v);
+  const defaultComp = comp.competitionSettings.scoringSystems.filter(i => i.id === v);
   console.log(defaultComp[0])
 
   newCompetition.value.scoringSystem = defaultComp[0];
@@ -50,7 +50,7 @@ async function load() {
 
 async function closeUpdate() {
   const compId = newCompetition.value.competitionNames[0];
-  comp.competitionSettings.competitions[compId]=newCompetition.value;
+  comp.competitionSettings.competitions[compId] = newCompetition.value;
   await comp.persistSettings();
   emit("done")
 }
@@ -101,7 +101,8 @@ const numberScoresAvailable = ref({
                 </div>
                 <div class="field-body">
                   <div class="control">
-                    <input class="input is-fullwidth is-success" type="text" v-model="newCompetition.competitionNames[0]" />
+                    <input class="input is-fullwidth is-success" type="text"
+                      v-model="newCompetition.competitionNames[0]" />
                   </div>
                 </div>
               </div>

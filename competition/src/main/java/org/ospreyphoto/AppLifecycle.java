@@ -1,5 +1,6 @@
 package org.ospreyphoto;
 
+import org.jboss.logmanager.LogManager;
 import org.ospreyphoto.nativeui.UIMain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +23,10 @@ public class AppLifecycle {
     UIMain uimain;
 
     void onStart(@Observes StartupEvent ev) {
+        LogManager.getLogManager().getLoggerNames().asIterator().forEachRemaining(System.out::println);
+
+        LogManager.getLogManager().readConfiguration();
+
         LOGGER.info("The application is starting...");
        
         Platform.startup(new Runnable() {
