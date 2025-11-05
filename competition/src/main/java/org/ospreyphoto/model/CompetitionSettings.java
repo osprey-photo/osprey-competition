@@ -1,40 +1,44 @@
 package org.ospreyphoto.model;
 
-import static org.ospreyphoto.model.Constants.FIRST;
-import static org.ospreyphoto.model.Constants.HC;
-import static org.ospreyphoto.model.Constants.SECOND;
-import static org.ospreyphoto.model.Constants.THIRD;
-
+import java.io.IOException;
+import java.net.URL;
 import java.util.List;
 import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class CompetitionSettings  {
-    @JsonProperty
-    public List<String> orderedValueScores;
+public class CompetitionSettings {
+    static final Logger logger = LoggerFactory.getLogger(CompetitionSettings.class);
 
     @JsonProperty
-    public Map<String,Integer> numberScoresAvailable;
+    public String clubName;
 
     @JsonProperty
-    public boolean randomised;
+    public Map<String, Competition> competitions;
 
     @JsonProperty
-    public String imageSrc;
+    public List<Scoring> scoringSystems;
 
+    public static CompetitionSettings defaults() {
 
-    public static CompetitionSettings defaults(){
-        var defaults = new CompetitionSettings();
-        defaults.randomised = true;
-        defaults.imageSrc = System.getProperty("user.home");
-        defaults.orderedValueScores = List.of(FIRST, SECOND, THIRD, HC);
-        defaults.numberScoresAvailable = Map.of(FIRST, 1, SECOND, 1, THIRD, 1, HC, 3);
-        return defaults;
+        URL defaultJson = CompetitionSettings.class.getResource("defaultcomp.json");
+        logger.info("Getting defautls from {}",defaultJson);
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            return mapper.readValue(defaultJson, CompetitionSettings.class);
+        } catch (IOException e) {
+            logger.error("Failed to open defaults", e);
+            throw new RuntimeException(e);
+        }
+
     }
 }

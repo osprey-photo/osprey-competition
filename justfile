@@ -32,6 +32,14 @@ ui_prod_windows:
    #! cmd /c
    cd {{CWDIR}}/osprey-competition-ui && npm i && npm run build
    
+[private]
+ui_prod_linux:  
+   #!/bin/bash
+
+   set -eo pipefail
+   cd {{CWDIR}}/osprey-competition-ui && npm i && npm run build
+
+
 comp_dev:
    @just  comp_dev_{{os()}}
 
@@ -56,7 +64,7 @@ build:
    ./gradlew build -Dquarkus.package.jar.type=uber-jar
 
 
-   https://github.com/sualeh/build-jpackage/blob/main/.github/workflows/build-jpackage.yml
+   # https://github.com/sualeh/build-jpackage/blob/main/.github/workflows/build-jpackage.yml
 
 package-windows:
   cd competition

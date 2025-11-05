@@ -94,12 +94,14 @@ public class DisplayControl {
             }
 
             dataToSend = mapper.writeValueAsString(dm);
+            if (session != null) {
+                session.getAsyncRemote().sendObject(dataToSend, result -> {
+                    if (result.getException() != null) {
+                        logger.error("Unable to send message: " + result.getException());
+                    }
+                });
 
-            session.getAsyncRemote().sendObject(dataToSend, result -> {
-                if (result.getException() != null) {
-                    logger.error("Unable to send message: " + result.getException());
-                }
-            });
+            }
 
         } catch (JsonProcessingException e) {
             logger.error("JSON Processing", e);

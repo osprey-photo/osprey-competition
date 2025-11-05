@@ -4,6 +4,7 @@ import org.ospreyphoto.nativeui.UIMain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.quarkus.logging.Log;
 import io.quarkus.runtime.ShutdownEvent;
 import io.quarkus.runtime.StartupEvent;
 import jakarta.enterprise.event.Observes;
@@ -26,7 +27,12 @@ public class AppLifecycle {
         Platform.startup(new Runnable() {
             @Override
             public void run() {
-                uimain.start();
+                try {
+                      uimain.start();
+                } catch (Exception e) {
+                  Log.error("Unable to start native ui"+e);
+                }
+              
             }
 
         });

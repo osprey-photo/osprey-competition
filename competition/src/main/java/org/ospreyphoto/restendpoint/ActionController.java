@@ -3,12 +3,14 @@ package org.ospreyphoto.restendpoint;
 import org.ospreyphoto.config.AppState;
 import org.ospreyphoto.config.Config;
 import org.ospreyphoto.model.Action;
+import org.ospreyphoto.model.Competition;
 import org.ospreyphoto.model.CompetitionSettings;
 import org.ospreyphoto.nativeui.Controller;
 import org.ospreyphoto.nativeui.UIMain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -52,7 +54,6 @@ public class ActionController {
             ObjectMapper mapper = new ObjectMapper();
             var actionJson = mapper.writeValueAsString(settinigs);
             logger.info(actionJson);
-            logger.info(appstate.getSettings().imageSrc);
             return "done";
         } catch (JsonProcessingException e) {
             logger.error("JSON processing exception ", e);
@@ -81,6 +82,23 @@ public class ActionController {
         Platform.runLater(dirChoice);
 
         return Uni.createFrom().future(dirChoice);
+    }
+
+    @GET
+    @Path("/currentcomp")
+    public String currentComp(){
+        return appstate.getCurrentCompetition();
+    }
+
+    static class CompID{
+        @JsonProperty public String compId;
+    }
+    
+    @POST
+    @Path("/currentcomp")
+    public void setCurrentComp(CompID name){
+        logger.info("Setting current comp {}",name.compId);
+        appstate.setCurrentCompetition(name.compId);
     }
 
     @POST
