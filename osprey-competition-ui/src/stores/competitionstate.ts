@@ -28,13 +28,23 @@ export const useCompetitionStore = defineStore('competition', () => {
   const competitionSettings: Ref<CompetitionSettings> = ref({
     competitions: {},
     clubName: '',
+    scoringSystems: [],
   })
 
   const selectedCompetition: Ref<Competition> = ref({
     orderedValueScores: [],
+    competitionNames: [],
     numberScoresAvailable: new Map<string, number>(),
     randomised: false,
     imageSrc: '',
+    scoringSystem: {
+      id: '',
+      description: '',
+      orderedValueScores: [],
+      numberScoresAvailable: new Map<string, number>(),
+      randomised: true,
+      heldBackList: true,
+    },
   })
 
   const availableScores = ref([FIRST, SECOND, THIRD, HC, HELD_BACK, REJECTED])
@@ -56,13 +66,13 @@ export const useCompetitionStore = defineStore('competition', () => {
     const data = await axios.get(`${BACKEND_URI}/action/persistconfig`)
     console.log(data)
     competitionSettings.value = data.data
-    return competitionSettings.value;
+    return competitionSettings.value
   }
 
   async function initCatalog(compId: string) {
-    console.log("compid "+compId)
-    await axios.post(`${BACKEND_URI}/action/currentcomp/`,  {compId} )
-    console.log("done post")
+    console.log('compid ' + compId)
+    await axios.post(`${BACKEND_URI}/action/currentcomp/`, { compId })
+    console.log('done post')
     return await axios.get(`${BACKEND_URI}/images/load`)
   }
 

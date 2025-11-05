@@ -1,44 +1,42 @@
 <script setup lang="ts">
-
-import LoadImagesComponent from '@/components/LoadImagesComponent.vue';
-import NavBarComponent from '@/components/NavBarComponent.vue';
-import StateComponent from '@/components/StateComponent.vue';
-import StatusComponent from '@/components/StatusComponent.vue';
-import { placeStyle } from '@/helpers';
-import { useCompetitionStore } from '@/stores/competitionstate';
-import { HELD_BACK, REJECTED, type CompetitionImage, type Filter } from '@/types';
-import SvgIcon from '@jamescoyle/vue-icon';
-import { mdiEyeOffOutline, mdiEyeOutline, mdiSortAscending, mdiSortDescending } from '@mdi/js';
-import { storeToRefs } from 'pinia';
-import { computed, onUpdated, reactive, ref } from 'vue';
-const runthroughTime = ref(3000);
-const comp = useCompetitionStore();
+import LoadImagesComponent from '@/components/LoadImagesComponent.vue'
+import NavBarComponent from '@/components/NavBarComponent.vue'
+import StateComponent from '@/components/StateComponent.vue'
+import StatusComponent from '@/components/StatusComponent.vue'
+import { placeStyle } from '@/helpers'
+import { useCompetitionStore } from '@/stores/competitionstate'
+import { HELD_BACK, REJECTED, type CompetitionImage, type Filter } from '@/types'
+import SvgIcon from '@jamescoyle/vue-icon'
+import { mdiEyeOffOutline, mdiEyeOutline, mdiSortAscending, mdiSortDescending } from '@mdi/js'
+import { storeToRefs } from 'pinia'
+import { computed, onUpdated, reactive, ref } from 'vue'
+const runthroughTime = ref(3000)
+const comp = useCompetitionStore()
 const statusIndicator = reactive({
   runthrough: false,
   critique: false,
   loadImages: false,
-  loadImagesDialog: false
+  loadImagesDialog: false,
 })
 
-const displayState = ref("full");
-const showDetails = ref(false);
+const displayState = ref('full')
+const showDetails = ref(false)
 
 async function display(d: string) {
-  displayState.value = d;
+  displayState.value = d
   switch (d) {
-    case "full":
-      comp.setDisplayFullImage(showDetails.value);
-      break;
-    case "lightbox":
-      comp.setLightBoxFiltered(filterState, showDetails.value);
-      break;
-    case "results":
-      comp.setResults();
-      break;
+    case 'full':
+      comp.setDisplayFullImage(showDetails.value)
+      break
+    case 'lightbox':
+      comp.setLightBoxFiltered(filterState, showDetails.value)
+      break
+    case 'results':
+      comp.setResults()
+      break
     default:
-      comp.setBlankDisplay();
+      comp.setBlankDisplay()
   }
-
 }
 
 /** Refresh the displayed state, if it's on that already */
@@ -47,76 +45,78 @@ async function refreshDisplay(d: string) {
     return
   }
   switch (d) {
-    case "full":
-      comp.setDisplayFullImage(showDetails.value);
-      break;
-    case "lightbox":
-      comp.setLightBoxFiltered(filterState, showDetails.value);
-      break;
-    case "results":
-      comp.setResults();
-      break;
+    case 'full':
+      comp.setDisplayFullImage(showDetails.value)
+      break
+    case 'lightbox':
+      comp.setLightBoxFiltered(filterState, showDetails.value)
+      break
+    case 'results':
+      comp.setResults()
+      break
     default:
-      comp.setBlankDisplay();
+      comp.setBlankDisplay()
   }
 }
 
 async function rowSelected(row: string) {
-  console.log("Row selected " + row);
+  console.log('Row selected ' + row)
   comp.setSelected(row, showDetails.value)
 }
 
-
-
-const filterState: Filter = reactive({ 'unseen': true, 'held_back': true, 'rejected': false, placed: false, scored: false })
+const filterState: Filter = reactive({
+  unseen: true,
+  held_back: true,
+  rejected: false,
+  placed: false,
+  scored: false,
+})
 
 function imageKeptFiltered(img: CompetitionImage) {
-
   if (img.state.kept == '' && !filterState['unseen']) {
-    return false;
+    return false
   }
 
   if (img.state.kept == HELD_BACK && !filterState['held_back']) {
-    return false;
+    return false
   }
 
   if (img.state.kept == REJECTED && !filterState['rejected']) {
-    return false;
+    return false
   }
 
   if (img.state.kept == 'placed' && !filterState['placed']) {
-    return false;
+    return false
   }
 
-  return true;
-
+  return true
 }
 
 async function action(cmd: string) {
   switch (cmd) {
-    case "next":
+    case 'next':
       comp.next(showDetails.value)
-      break;
-    case "previous":
+      break
+    case 'previous':
       comp.previous(showDetails.value)
-      break;
+      break
     case HELD_BACK:
     case REJECTED:
-      comp.scoreCurrent(cmd);
-      comp.next(showDetails.value);
+      comp.scoreCurrent(cmd)
+      comp.next(showDetails.value)
 
       // const { displayImageId } = storeToRefs(comp)
       // const el = document.getElementById(displayImageId.value);
       // el?.scrollIntoView({ behavior: "smooth" });
       onUpdated(() => {
         // text content should be the same as current `count.value`
-        console.log("hello......")
+        console.log('hello......')
       })
 
-      break;
+      break
 
     default:
-      break;
+      break
   }
 }
 
@@ -135,24 +135,21 @@ async function action(cmd: string) {
 // }
 
 async function runthrough() {
-
-  comp.resetIndex();
+  comp.resetIndex()
   statusIndicator.runthrough = true
-  await comp.next(false);
+  await comp.next(false)
   const intervalId = setInterval(async () => {
-    await comp.next(false);
+    await comp.next(false)
     if (comp.atLast()) {
-      clearInterval(intervalId);
+      clearInterval(intervalId)
 
       // move back tostart
       setTimeout(async () => {
-        comp.next(showDetails.value);
+        comp.next(showDetails.value)
         statusIndicator.runthrough = false
       }, runthroughTime.value)
-
     }
-  }, runthroughTime.value);
-
+  }, runthroughTime.value)
 }
 
 async function startCritque() {
@@ -161,34 +158,34 @@ async function startCritque() {
 }
 
 async function tempHide(img: CompetitionImage) {
-  img.tempHidden = !img.tempHidden;
+  img.tempHidden = !img.tempHidden
   refreshDisplay('lightbox')
 }
 
 async function awardScore(img: CompetitionImage, score: string) {
-  comp.placeImg(img.id, score);
+  comp.placeImg(img.id, score)
 }
 
 const numberHeldBack = computed(() => {
   const x = comp.data.filter((i: CompetitionImage) => {
     return i.state.kept === HELD_BACK
-  });
-  return x.length;
-});
+  })
+  return x.length
+})
 
 const numberRejected = computed(() => {
   const x = comp.data.filter((i: CompetitionImage) => {
     return i.state.kept === REJECTED
-  });
-  return x.length;
-});
+  })
+  return x.length
+})
 
 const numberUnscored = computed(() => {
   const x = comp.data.filter((i: CompetitionImage) => {
-    return i.state.kept === ""
-  });
-  return x.length;
-});
+    return i.state.kept === ''
+  })
+  return x.length
+})
 
 function imageForScore(place: string): Array<CompetitionImage> {
   const filtered = comp.data.filter((i: CompetitionImage) => {
@@ -198,36 +195,29 @@ function imageForScore(place: string): Array<CompetitionImage> {
   // if (filtered.length == 0) {
   //   return [{ title: '', photographer: '' }]
   // }
-  return filtered;
+  return filtered
 }
 
 const { displayImageId } = storeToRefs(comp)
 onUpdated(() => {
-  const el = document.getElementById(displayImageId.value);
-  el?.scrollIntoView({ behavior: "smooth" });
+  const el = document.getElementById(displayImageId.value)
+  el?.scrollIntoView({ behavior: 'smooth' })
   // text content should be the same as current `count.value`
-
 })
-
 
 //
 // watch(displayImageId, (d) => {
 //
 //
 // });
-
-
-
 </script>
-
 
 <template>
   <NavBarComponent />
   <div class="section has-background-light">
-    <div class="columns ">
+    <div class="columns">
       <div class="column">
         <div class="box">
-
           <div class="level">
             <div class="level-left">
               <div class="checkboxes">
@@ -250,51 +240,69 @@ onUpdated(() => {
                   <input type="checkbox" v-model="filterState['placed']" />
                   Placed
                 </label>
-
               </div>
             </div>
             <div class="level-right">
-
               <label class="checkbox">
                 <input type="checkbox" v-model="showDetails" />
                 Photographer Name
               </label>
               <label> Sort Results</label>
 
-
-              <span class="button level-item" @click="comp.sort(false)"><svg-icon type="mdi" size="20"
-                  :path="mdiSortAscending"></svg-icon></span>
-              <span class="button level-item" @click="comp.sort(true)"><svg-icon type="mdi" size="20"
-                  :path="mdiSortDescending"></svg-icon></span>
+              <span class="button level-item" @click="comp.sort(false)"
+                ><svg-icon type="mdi" size="20" :path="mdiSortAscending"></svg-icon
+              ></span>
+              <span class="button level-item" @click="comp.sort(true)"
+                ><svg-icon type="mdi" size="20" :path="mdiSortDescending"></svg-icon
+              ></span>
             </div>
           </div>
-
         </div>
         <div class="container">
           <div class="table-container">
             <table class="table is-bordered is-scrollable">
-              <tr :id="item.id" @click="rowSelected(item.id)" ref="items"
-                :class="{ 'has-background-grey-lighter': comp.displayImageId == item.id }" v-for="(item) in comp.data"
-                :key="item.id" v-show="imageKeptFiltered(item) == true">
+              <tr
+                :id="item.id"
+                @click="rowSelected(item.id)"
+                ref="items"
+                :class="{ 'has-background-grey-lighter': comp.displayImageId == item.id }"
+                v-for="item in comp.data"
+                :key="item.id"
+                v-show="imageKeptFiltered(item) == true"
+              >
                 <td>{{ item.title }}</td>
                 <td>{{ item.photographer }}</td>
-                <td><svg-icon @click.stop="tempHide(item)" type="mdi" size="20"
-                    :path="item.tempHidden ? mdiEyeOffOutline : mdiEyeOutline"></svg-icon></td>
                 <td>
-                  <StateComponent :state='item.state' />
+                  <svg-icon
+                    @click.stop="tempHide(item)"
+                    type="mdi"
+                    size="20"
+                    :path="item.tempHidden ? mdiEyeOffOutline : mdiEyeOutline"
+                  ></svg-icon>
                 </td>
                 <td>
-                  <img :class="{ 'greyscale': item.tempHidden }" :src="`data:image/png;base64,${item.thumbnailB64}`"
-                    alt=" Red dot" />
+                  <StateComponent :state="item.state" />
                 </td>
                 <td>
-                  <span v-show="item.state.place == ''" v-for="(score) in comp.availableScores"
-                    class="button is-small m-2" :class="placeStyle(score)" :key="score"
-                    @click.stop="awardScore(item, score)">
-                    {{ score }}</span>
+                  <img
+                    :class="{ greyscale: item.tempHidden }"
+                    :src="`data:image/png;base64,${item.thumbnailB64}`"
+                    alt=" Red dot"
+                  />
+                </td>
+                <td>
+                  <span
+                    v-show="item.state.place == ''"
+                    v-for="score in comp.availableScores"
+                    class="button is-small m-2"
+                    :class="placeStyle(score)"
+                    :key="score"
+                    @click.stop="awardScore(item, score)"
+                  >
+                    {{ score }}</span
+                  >
                 </td>
               </tr>
-
             </table>
           </div>
         </div>
@@ -302,45 +310,87 @@ onUpdated(() => {
       <div class="column is-4">
         <div class="block">
           <div class="level">
-
-            <span class="button level-item" :class="{ 'is-focused': displayState === 'full' }"
-              @click="display('full')">Full
-              Image</span>
-            <button class="button level-item" :class="{ 'is-focused': displayState === 'lightbox' }"
-              @click="display('lightbox')">Lightbox</button>
-            <span class="button level-item" :class="{ 'is-focused': displayState === 'blank' }"
-              @click="display('blank')">[blank]</span>
-
-
-          </div>
-
-        </div>
-        <div class="block">
-          <div class="level">
-            <button class="level-item button is-info" :class="{ 'is-loading': statusIndicator.runthrough }"
-              @click="runthrough">Start runthrough</button>
-            <button class="level-item button is-info" v-bind:disabled="statusIndicator.runthrough"
-              @click="startCritque">Start Critique</button>
-            <button class="level-item button is-link" v-bind:disabled="statusIndicator.runthrough"
-              @click="action('previous')">Previous</button>
-            <button class="level-item button is-link" v-bind:disabled="statusIndicator.runthrough"
-              @click="action('next')">Next</button>
+            <span
+              class="button level-item"
+              :class="{ 'is-focused': displayState === 'full' }"
+              @click="display('full')"
+              >Full Image</span
+            >
+            <button
+              class="button level-item"
+              :class="{ 'is-focused': displayState === 'lightbox' }"
+              @click="display('lightbox')"
+            >
+              Lightbox
+            </button>
+            <span
+              class="button level-item"
+              :class="{ 'is-focused': displayState === 'blank' }"
+              @click="display('blank')"
+              >[blank]</span
+            >
           </div>
         </div>
         <div class="block">
           <div class="level">
-            <button class="level-item button is-success" v-bind:disabled="statusIndicator.runthrough"
-              @click="action(HELD_BACK)">Hold Back</button>
-            <button class="level-item button is-danger" v-bind:disabled="statusIndicator.runthrough"
-              @click="action(REJECTED)">Reject</button>
+            <button
+              class="level-item button is-info"
+              :class="{ 'is-loading': statusIndicator.runthrough }"
+              @click="runthrough"
+            >
+              Start runthrough
+            </button>
+            <button
+              class="level-item button is-info"
+              v-bind:disabled="statusIndicator.runthrough"
+              @click="startCritque"
+            >
+              Start Critique
+            </button>
+            <button
+              class="level-item button is-link"
+              v-bind:disabled="statusIndicator.runthrough"
+              @click="action('previous')"
+            >
+              Previous
+            </button>
+            <button
+              class="level-item button is-link"
+              v-bind:disabled="statusIndicator.runthrough"
+              @click="action('next')"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+        <div class="block">
+          <div class="level">
+            <button
+              class="level-item button is-success"
+              v-bind:disabled="statusIndicator.runthrough"
+              @click="action(HELD_BACK)"
+            >
+              Hold Back
+            </button>
+            <button
+              class="level-item button is-danger"
+              v-bind:disabled="statusIndicator.runthrough"
+              @click="action(REJECTED)"
+            >
+              Reject
+            </button>
           </div>
         </div>
 
         <div class="block">
           <div class="level">
-            <button class="level-item button is-success" v-bind:disabled="false" @click="comp.setResults()">Save results
-              CSV</button>
-
+            <button
+              class="level-item button is-success"
+              v-bind:disabled="false"
+              @click="comp.setResults()"
+            >
+              Save results CSV
+            </button>
           </div>
         </div>
         <div class="block">
@@ -355,9 +405,7 @@ onUpdated(() => {
             <div class="field is-grouped">
               <div class="label">Rejected</div>
               <div class="control">
-
                 {{ numberRejected }}
-
               </div>
             </div>
             <div class="field is-grouped">
@@ -366,36 +414,32 @@ onUpdated(() => {
                 {{ numberUnscored }}
               </div>
             </div>
-
           </div>
-
-
         </div>
 
         <div class="block">
           <table>
             <tbody v-for="s in comp.selectedCompetition.scoringSystem.orderedValueScores" :key="s">
               <tr v-for="i in imageForScore(s)" :key="i.id">
-                <td class="p-1"><span class="subtitle">{{ s }}</span></td>
-                <td class="p-1"> <span class="subtitle has-text-weight-semibold">{{ i.title }}</span>
+                <td class="p-1">
+                  <span class="subtitle">{{ s }}</span>
                 </td>
-                <td class="p-1"><span class="subtitle is-italic">{{ i.photographer }}</span>
+                <td class="p-1">
+                  <span class="subtitle has-text-weight-semibold">{{ i.title }}</span>
+                </td>
+                <td class="p-1">
+                  <span class="subtitle is-italic">{{ i.photographer }}</span>
                 </td>
               </tr>
             </tbody>
-
           </table>
         </div>
 
         <div class="box">
           <StatusComponent />
         </div>
-
       </div>
-
-
     </div>
-
   </div>
   <!-- <LoadImagesComponent :active="statusIndicator.loadImagesDialog" @done="doneLoadImages" @abort="abortLoadImages" /> -->
 </template>

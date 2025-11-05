@@ -1,18 +1,16 @@
 <script setup lang="ts">
-
-import NavBarComponent from '@/components/NavBarComponent.vue';
-import { useCompetitionStore } from '@/stores/competitionstate';
-import SvgIcon from '@jamescoyle/vue-icon';
-import { mdiDeleteOutline, mdiPresentationPlay } from '@mdi/js';
-import { onMounted, reactive, ref } from 'vue';
-const comp = useCompetitionStore();
-const router = useRouter();
-import LoadImagesComponent from '@/components/LoadImagesComponent.vue';
-import { useRouter } from 'vue-router';
+import NavBarComponent from '@/components/NavBarComponent.vue'
+import { useCompetitionStore } from '@/stores/competitionstate'
+import SvgIcon from '@jamescoyle/vue-icon'
+import { mdiDeleteOutline, mdiPresentationPlay } from '@mdi/js'
+import { onMounted, reactive, ref } from 'vue'
+const comp = useCompetitionStore()
+const router = useRouter()
+import LoadImagesComponent from '@/components/LoadImagesComponent.vue'
+import { useRouter } from 'vue-router'
 
 const statusIndicator = reactive({
-
-  loadImagesDialog: false
+  loadImagesDialog: false,
 })
 
 const activeSection = ref('competition')
@@ -22,59 +20,59 @@ onMounted(() => {
 })
 
 async function save() {
-  await comp.persistSettings();
+  await comp.persistSettings()
 }
 
 async function abortLoadImages() {
-  statusIndicator.loadImagesDialog = false;
+  statusIndicator.loadImagesDialog = false
 }
 
 async function doneLoadImages() {
-  statusIndicator.loadImagesDialog = false;
+  statusIndicator.loadImagesDialog = false
 }
 
-async function deleteComp(compId:string){
-  delete  comp.competitionSettings.competitions[compId];
-  await comp.persistSettings();
+async function deleteComp(compId: string) {
+  delete comp.competitionSettings.competitions[compId]
+  await comp.persistSettings()
 }
 
-async function startComp(compId:string){
-  console.log("Starting comp "+compId);
-  comp.selectedCompetition = comp.competitionSettings.competitions[compId];
+async function startComp(compId: string) {
+  console.log('Starting comp ' + compId)
+  comp.selectedCompetition = comp.competitionSettings.competitions[compId]
   await comp.initCatalog(compId)
   await comp.updateList()
-  router.push("runcomp")
+  router.push('runcomp')
 }
-
 </script>
-
 
 <template>
   <NavBarComponent />
-  <div class="section  has-background-light">
+  <div class="section has-background-light">
     <h1 class="title">Manage Competitions</h1>
     <div class="container">
       <div class="level">
         <div class="level-left">
           <div class="level-item">
-            <p class="subtitle is-5">
-              Club Name
-            </p>
+            <p class="subtitle is-5">Club Name</p>
           </div>
           <div class="level-item">
             <div class="field">
               <div class="field-body">
                 <div class="field">
-                  <input class="input is-medium" type="text" v-model="comp.competitionSettings.clubName" />
+                  <input
+                    class="input is-medium"
+                    type="text"
+                    v-model="comp.competitionSettings.clubName"
+                  />
                 </div>
               </div>
             </div>
           </div>
         </div>
         <div class="level-right">
-
-
-          <button class="button" @click="statusIndicator.loadImagesDialog = true">New Critique...</button>
+          <button class="button" @click="statusIndicator.loadImagesDialog = true">
+            New Critique...
+          </button>
           <button class="button" @click="save">Save</button>
         </div>
       </div>
@@ -84,15 +82,12 @@ async function startComp(compId:string){
             <tr class="has-background-white">
               <th class="px-6 py-3">
                 <span class="is-size-5">Compeitition Title</span>
-
               </th>
               <th class="px-6 py-3">
                 <span class="is-size-5">Subtitle</span>
-
               </th>
               <th class="px-6 py-3">
                 <span class="is-size-5">Image paths</span>
-
               </th>
               <th class="px-6 py-3">
                 <span class="is-size-5">Summary</span>
@@ -111,13 +106,14 @@ async function startComp(compId:string){
               <td>
                 <!-- <a class="" @click="editComp(key)"><svg-icon type="mdi" size="20"
                     :path="mdiNoteEditOutline"></svg-icon></a> -->
-                <a class="" @click="deleteComp(key as string)"><svg-icon type="mdi" size="20"
-                    :path="mdiDeleteOutline"></svg-icon></a>
-                <a class="" @click="startComp(key as string)"><svg-icon type="mdi" size="20"
-                    :path="mdiPresentationPlay"></svg-icon></a>
+                <a class="" @click="deleteComp(key as string)"
+                  ><svg-icon type="mdi" size="20" :path="mdiDeleteOutline"></svg-icon
+                ></a>
+                <a class="" @click="startComp(key as string)"
+                  ><svg-icon type="mdi" size="20" :path="mdiPresentationPlay"></svg-icon
+                ></a>
               </td>
             </tr>
-
           </tbody>
         </table>
       </div>
@@ -131,16 +127,19 @@ async function startComp(compId:string){
             <label class="label">Club nane</label>
           </div>
           <div class="field-body">
-            <div class="field ">
+            <div class="field">
               <input class="input" type="text" />
             </div>
           </div>
         </div>
       </div>
     </div>
-    <LoadImagesComponent :active="statusIndicator.loadImagesDialog" @done="doneLoadImages" @abort="abortLoadImages" />
+    <LoadImagesComponent
+      :active="statusIndicator.loadImagesDialog"
+      @done="doneLoadImages"
+      @abort="abortLoadImages"
+    />
   </div>
-
 </template>
 
 <style lang="css">

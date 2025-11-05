@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { State } from '@/types';
-import { placeStyle } from '@/helpers';
+import type { State } from '@/types'
+import { placeStyle } from '@/helpers'
 defineProps<{
   state: State
 }>()

@@ -17,7 +17,7 @@ socket.onclose = (event) => {
 }
 
 socket.onmessage = (event) => {
-  msgs.value.unshift(event.data);
+  msgs.value.unshift(event.data)
 }
 </script>
 
@@ -27,14 +27,10 @@ socket.onmessage = (event) => {
 
     <table class="table is-scrollable">
       <tr :id="evt" v-for="(evt, index) in msgs" :key="index">
-
-        <td>{{ evt }}
-        </td>
+        <td>{{ evt }}</td>
       </tr>
-
     </table>
   </div>
-
 </template>
 <style lang="css">
 .status-container {

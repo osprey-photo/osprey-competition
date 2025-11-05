@@ -23,11 +23,12 @@ const router = createRouter({
       path: '/runcomp',
       name: 'runcomp',
       component: RunCompetitionView,
-    },{
+    },
+    {
       path: '/managecomp',
       name: 'managecomp',
       component: ManageCompetitionsView,
-    }
+    },
   ],
 })
 

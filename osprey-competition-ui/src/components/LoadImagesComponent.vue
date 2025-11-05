@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import { useCompetitionStore } from '@/stores/competitionstate';
-import type { Competition } from '@/types';
-import { mdiMapMarkerStar } from '@mdi/js';
-import { reactive, ref, type Ref } from 'vue';
+import { useCompetitionStore } from '@/stores/competitionstate'
+import type { Competition } from '@/types'
+
+import { reactive, ref, type Ref } from 'vue'
 
 const props = defineProps<{
   active: boolean
 }>()
 
 const emit = defineEmits(['done', 'abort'])
-const comp = useCompetitionStore();
+const comp = useCompetitionStore()
 
-const scoring = ref("")
+const scoring = ref('')
 
 async function defaultPicked() {
   console.log(scoring.value)
@@ -25,59 +25,57 @@ const newCompetition: Ref<Competition> = ref({
     heldBackList: true,
     orderedValueScores: [],
     randomised: true,
-    numberScoresAvailable: new Map()
+    numberScoresAvailable: new Map(),
   },
-  imageSrc: ''
-});
+  imageSrc: '',
+})
 
-async function selectDefault(event){
-  const v = event.target.value;
-  console.log("Select Default " +v);
-  const defaultComp = comp.competitionSettings.scoringSystems.filter(i=>i.id === v);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function selectDefault(event: any) {
+  const v = event.target.value
+  console.log('Select Default ' + v)
+  const defaultComp = comp.competitionSettings.scoringSystems.filter((i) => i.id === v)
   console.log(defaultComp[0])
 
-  newCompetition.value.scoringSystem = defaultComp[0];
-
-
+  newCompetition.value.scoringSystem = defaultComp[0]
 }
 
 async function load() {
   status.loadImages = true
-  const d = await comp.getImageSrc();
-  newCompetition.value.imageSrc = d;
+  const d = await comp.getImageSrc()
+  newCompetition.value.imageSrc = d
   status.loadImages = false
 }
 
 async function closeUpdate() {
-  const compId = newCompetition.value.competitionNames[0];
-  comp.competitionSettings.competitions[compId]=newCompetition.value;
-  await comp.persistSettings();
-  emit("done")
+  const compId = newCompetition.value.competitionNames[0]
+  comp.competitionSettings.competitions[compId] = newCompetition.value
+  await comp.persistSettings()
+  emit('done')
 }
 
-const marks = ref("placed")
-const hcplaces = ref("4")
+const marks = ref('placed')
+const hcplaces = ref('4')
 const runthroughTime = ref(3000)
 const heldbacks = ref(-1)
 
 const status = reactive({
-  loadImages: false
+  loadImages: false,
 })
 
 const randomised = ref(true)
 
-
 const numberScoresAvailable = ref({
-  "Second": -1,
-  "9": -1,
-  "8": -1,
-  "7": -1,
-  "6": -1,
-  "5": -1,
-  "4": -1,
-  "3": -1,
-  "2": -1,
-  "1": -1
+  Second: -1,
+  '9': -1,
+  '8': -1,
+  '7': -1,
+  '6': -1,
+  '5': -1,
+  '4': -1,
+  '3': -1,
+  '2': -1,
+  '1': -1,
 })
 </script>
 
@@ -101,7 +99,11 @@ const numberScoresAvailable = ref({
                 </div>
                 <div class="field-body">
                   <div class="control">
-                    <input class="input is-fullwidth is-success" type="text" v-model="newCompetition.competitionNames[0]" />
+                    <input
+                      class="input is-fullwidth is-success"
+                      type="text"
+                      v-model="newCompetition.competitionNames[0]"
+                    />
                   </div>
                 </div>
               </div>
@@ -110,8 +112,12 @@ const numberScoresAvailable = ref({
                   <label class="label">Subtitle eg round</label>
                 </div>
                 <div class="field-body">
-                  <div class="control ">
-                    <input class="input  is-success" type="text" v-model="newCompetition.competitionNames[1]" />
+                  <div class="control">
+                    <input
+                      class="input is-success"
+                      type="text"
+                      v-model="newCompetition.competitionNames[1]"
+                    />
                   </div>
                 </div>
               </div>
@@ -120,45 +126,54 @@ const numberScoresAvailable = ref({
                   <label class="label">Image Directory</label>
                 </div>
                 <div class="field-body">
+                  <div class="control">
+                    <input
+                      class="input is-success"
+                      type="text"
+                      placeholder="Full Directory Path"
+                      v-model="newCompetition.imageSrc"
+                    />
+                  </div>
 
-                  <div class="control"> <input class="input is-success" type="text" placeholder="Full Directory Path"
-                      v-model="newCompetition.imageSrc"></div>
-
-                  <div class="control"> <button class="button " @click="load"
-                      :class="{ 'is-loading': status.loadImages }">Select
-                      directory...</button></div>
-
+                  <div class="control">
+                    <button
+                      class="button"
+                      @click="load"
+                      :class="{ 'is-loading': status.loadImages }"
+                    >
+                      Select directory...
+                    </button>
+                  </div>
                 </div>
-
               </div>
 
               <div class="field is-horizontal">
-                <div class="field-label ">
+                <div class="field-label">
                   <label class="label">Default Scoring</label>
                 </div>
                 <div class="field-body">
-
                   <div class="control is-expanded">
                     <div class="select is-fullwidth">
                       <select v-model="scoring" @change="selectDefault($event)">
                         <option value="">please select...</option>
-                        <option v-for="(system) in comp.competitionSettings.scoringSystems" :value="system.id"
-                          :key="system.id">
-                          {{ system.description }} </option>
+                        <option
+                          v-for="system in comp.competitionSettings.scoringSystems"
+                          :value="system.id"
+                          :key="system.id"
+                        >
+                          {{ system.description }}
+                        </option>
                       </select>
                     </div>
                   </div>
-
                 </div>
               </div>
 
-
               <div class="field is-horizontal">
-                <div class="field-label ">
+                <div class="field-label">
                   <label class="label">Marks or places</label>
                 </div>
                 <div class="field-body">
-
                   <div class="control">
                     <div class="select is-fullwidth">
                       <select v-model="marks">
@@ -169,11 +184,10 @@ const numberScoresAvailable = ref({
                     </div>
                   </div>
                 </div>
-
               </div>
 
               <div class="field is-horizontal">
-                <div class="field-label ">
+                <div class="field-label">
                   <label class="label">Score Places</label>
                 </div>
                 <div class="field-body">
@@ -185,7 +199,6 @@ const numberScoresAvailable = ref({
                             <label class="label">{{ k }}</label>
                           </div>
                           <div class="field-body">
-
                             <div class="control">
                               <select v-model="numberScoresAvailable[k]">
                                 <option value="-1">No limit</option>
@@ -194,12 +207,9 @@ const numberScoresAvailable = ref({
                                 <option>3</option>
                               </select>
                             </div>
-
                           </div>
                         </div>
-
                       </div>
-
                     </div>
                   </div>
                 </div>
@@ -209,7 +219,6 @@ const numberScoresAvailable = ref({
                   <label class="label">Heldback Limit</label>
                 </div>
                 <div class="field-body">
-
                   <div class="control">
                     <div class="select">
                       <select v-model="heldbacks">
@@ -219,11 +228,10 @@ const numberScoresAvailable = ref({
                         <option>15</option>
                       </select>
                     </div>
-
                   </div>
                 </div>
               </div>
-              <div class="field  is-horizontal">
+              <div class="field is-horizontal">
                 <div class="field-label">
                   <label class="label">Runthrough Image time</label>
                 </div>
@@ -239,34 +247,28 @@ const numberScoresAvailable = ref({
                         <option value="10000">10s</option>
                       </select>
                     </div>
-
                   </div>
                 </div>
-
               </div>
               <div class="field is-horizontal">
                 <div class="field-label">
                   <label class="label">Randomise</label>
                 </div>
                 <div class="field-body">
-
                   <div class="control">
                     <label class="radio">
-                      <input type="radio" name="member" value='true' v-model="randomised" />
+                      <input type="radio" name="member" value="true" v-model="randomised" />
                       Yes
                     </label>
                     <label class="radio">
-                      <input type="radio" name="member" value='false' v-model="randomised" />
+                      <input type="radio" name="member" value="false" v-model="randomised" />
                       No
                     </label>
                   </div>
                 </div>
-
               </div>
             </div>
           </div>
-
-
 
           <footer class="modal-card-foot">
             <div class="buttons">
@@ -274,9 +276,7 @@ const numberScoresAvailable = ref({
               <button class="button" @click="$emit('abort')">Cancel</button>
             </div>
           </footer>
-
         </div>
-
       </div>
 
       <!-- <button @click="$emit('done')" class="modal-close is-large" aria-label="close"></button> -->
