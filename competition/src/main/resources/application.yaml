@@ -11,10 +11,10 @@ quarkus:
 
   log:
     console:
-      format: "%d{yyyy-MM-dd HH:mm:ss} %-5p [%c] (%t) %s%e%n"
-    file:
       enable: false
-      path: "logs/ospreycompetition.log"
+    file:
+      enable: true
+      path: "${user.home}/.osprey-competition/logs/ospreycompetition.log"
       format: "%d{yyyy-MM-dd HH:mm:ss} %-5p [%c] (%t) %s%e%n"
       rotation:
         file-suffix: ".yyyy-MM-dd"
