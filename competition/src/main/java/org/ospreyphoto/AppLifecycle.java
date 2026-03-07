@@ -1,5 +1,6 @@
 package org.ospreyphoto;
 
+import org.ospreyphoto.config.LoggingConfig;
 import org.ospreyphoto.nativeui.UIMain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +23,9 @@ public class AppLifecycle {
     UIMain uimain;
 
     void onStart(@Observes StartupEvent ev) {
+        // Initialize logging configuration with random directory
+        LoggingConfig.initialize();
+        
         LOGGER.info("The application is starting...");
        
         Platform.startup(new Runnable() {
