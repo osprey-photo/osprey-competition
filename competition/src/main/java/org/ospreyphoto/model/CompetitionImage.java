@@ -181,7 +181,7 @@ public class CompetitionImage {
 
             BufferedImage outputImage = new BufferedImage(targetedWidth, targetedHeight, BufferedImage.TYPE_INT_RGB);
             var graphics = outputImage.getGraphics();
-            graphics.setColor(Color.WHITE);
+            graphics.setColor(new Color(169,169,169));
             graphics.fillRect(0, 0, targetedWidth, targetedHeight);
             graphics.drawImage(tb, xoffset, yoffset, null);
             graphics.dispose();

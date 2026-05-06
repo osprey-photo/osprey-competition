@@ -15,36 +15,27 @@ CWDIR := justfile_directory()
 _default:
   @just -f "{{justfile()}}" --list
 
+[windows]
 ui_dev:
-   @just ui_dev_{{os()}}
-
-[private]
-ui_dev_windows:
    #! cmd /c
    cd {{CWDIR}}/osprey-competition-ui && npm run dev
 
 # Runs production UI buidl
-ui_prod:
-   @just  ui_prod_{{os()}}
-
-[private]
-ui_prod_windows:  
+[windows]
+ui_prod:  
    #! cmd /c
    cd {{CWDIR}}/osprey-competition-ui && npm i && npm run build
    
-[private]
-ui_prod_linux:  
+[unix]
+ui_prod:  
    #!/bin/bash
 
    set -eo pipefail
    cd {{CWDIR}}/osprey-competition-ui && npm i && npm run build
 
 
+[windows]
 comp_dev:
-   @just  comp_dev_{{os()}}
-
-[private]
-comp_dev_windows:
    #! cmd /c
    cd {{CWDIR}}/competition && gradlew quarkusDev
 
@@ -66,6 +57,7 @@ build:
 
    # https://github.com/sualeh/build-jpackage/blob/main/.github/workflows/build-jpackage.yml
 
+[windows]
 package-windows:
   cd competition
   gradle build "-Dquarkus.package.jar.type=uber-jar"
