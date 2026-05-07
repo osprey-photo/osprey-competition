@@ -56,21 +56,21 @@ function placeText(place: string) {
       </div>
     </div>
     <div v-else-if="comp.displayType == 'light_box_images'" class="">
-      <div class="grid is-col-min-15 lightbox p-6">
+      <div class="grid is-col-min-15 lightbox p-4">
         <div class="cell" v-for="i in comp.images" :key="i.id">
           <div class="card">
-            <div class="card-image p-4">
+            <div class="card-image p-1">
               <figure class="image is-1by1">
                 <img :src="`data:image/png;base64,${i.halfishB64}`" alt=" Red dot" />
               </figure>
             </div>
             <div class="card-content">
-              <p class="is-italic is-size-4 has-text-weight-semibold">{{ i.title }}</p>
+              <p class="is-italic is-size-5 has-text-weight-semibold">{{ i.title }}</p>
             </div>
-            <div class="card-footer">
+            <div class="card-footer"      v-show="placeText(i.state.kept) != ''">
               <span
                 class="button is-large m-1 mb-4"
-                v-show="placeText(i.state.kept) != ''"
+           
                 :class="placeStyle(i.state.kept)"
               >
                 {{ placeText(i.state.kept) }}
@@ -100,7 +100,7 @@ function placeText(place: string) {
               <p class="is-italic is-size-4 has-text-weight-bold">{{ i.title }}</p>
               <p class="is-size-4 has-text-weight-semibold">{{ i.photographer }}</p>
             </div>
-            <div class="card-footer">
+            <div class="card-footer" v-if="placeText(i.state.place) != ''">
               <span
                 class="button is-large m-1 mb-4"
                 v-show="placeText(i.state.place) != ''"
@@ -158,10 +158,15 @@ function placeText(place: string) {
   height: 100%;
   display: flex;
   flex-direction: column;
+  background-color: darkgray;
+}
+
+img .card{
+   background-color: darkgray;
 }
 
 .card-block {
-  height: 100%;
+  /* height: 100%; */
 }
 
 .lightbox {
