@@ -14,6 +14,7 @@ import javax.imageio.ImageIO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -25,27 +26,22 @@ public class CompetitionImage {
     final Logger logger = LoggerFactory.getLogger(CompetitionImage.class);
     private Path filePath;
 
-    @JsonProperty
     private String title;
 
-    @JsonProperty
     private String photographer;
 
-    @JsonProperty
     private String id;
 
-    @JsonProperty
     private String thumbnailB64;
 
-    @JsonProperty
     private String halfishB64;
 
     @JsonProperty
     public String fullImageB64;
 
-    @JsonProperty
     private State state;
 
+    @JsonIgnore
     public Path getFilePath() {
         return filePath;
     }
@@ -67,7 +63,7 @@ public class CompetitionImage {
         this.state = state;
     }
 
-    public String getID() {
+    public String getId() {
         return this.id;
     }
 
@@ -75,7 +71,23 @@ public class CompetitionImage {
         return title;
     }
 
-    protected CompetitionImage setID(String id) {
+    public String getThumbnailB64() {
+        return thumbnailB64;
+    }
+
+    void setThumbnailB64(String thumbnailB64) {
+        this.thumbnailB64 = thumbnailB64;
+    }
+
+    public String getHalfishB64() {
+        return halfishB64;
+    }
+
+    void setHalfishB64(String halfishB64) {
+        this.halfishB64 = halfishB64;
+    }
+
+    protected CompetitionImage setId(String id) {
         this.id = id;
         return this;
     }
@@ -127,11 +139,11 @@ public class CompetitionImage {
         public CompetitionImage build() throws IOException {
             String id = String.format("%x", filepath.hashCode());
 
-            var ci = new CompetitionImage().setID(id).setFilePath(filepath)
+            var ci = new CompetitionImage().setId(id).setFilePath(filepath)
                     .setTitle(title)
                     .setPhotographer(name);
-            ci.thumbnailB64 = ci.scale(200.0f);
-            ci.halfishB64 = ci.scaleSized(0.25f);
+            ci.setThumbnailB64(ci.scale(200.0f));
+            ci.setHalfishB64(ci.scaleSized(0.25f));
             ci.state = state;
             return ci;
 
@@ -181,7 +193,7 @@ public class CompetitionImage {
 
             BufferedImage outputImage = new BufferedImage(targetedWidth, targetedHeight, BufferedImage.TYPE_INT_RGB);
             var graphics = outputImage.getGraphics();
-            graphics.setColor(new Color(169,169,169));
+            graphics.setColor(new Color(40,40,40));
             graphics.fillRect(0, 0, targetedWidth, targetedHeight);
             graphics.drawImage(tb, xoffset, yoffset, null);
             graphics.dispose();

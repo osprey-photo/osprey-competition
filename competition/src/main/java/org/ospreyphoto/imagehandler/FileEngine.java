@@ -56,14 +56,20 @@ public class FileEngine {
 
                     .map(Path::toString)
                     .filter(p -> !p.startsWith("."))
-                    .filter(p -> p.endsWith(".jpg") || p.endsWith("JPG"))
-
+                    .filter(p -> p.endsWith(".jpg") || p.endsWith(".JPG"))
+                    .filter(p -> {
+                        if (p.indexOf('%') < 0) {
+                            logger.warn("Skipping file with no '%' separator: {}", p);
+                            return false;
+                        }
+                        return true;
+                    })
                     .collect(Collectors.toList());
 
             return imgPaths.stream().map((String p) -> {
                 try {
                     String name = p.substring(0, p.indexOf("%"));
-                    var title = p.substring(p.lastIndexOf('%') + 1, p.indexOf("."));
+                    var title = p.substring(p.lastIndexOf('%') + 1, p.lastIndexOf('.'));
                     var fname = Paths.get(this.basePath.toString(), p);
                     var state = new State();
                     return CompetitionImage.builder().withName(name).withTitle(title).withFilename(fname)

@@ -63,7 +63,12 @@ public class ImageCatalog {
     public List<CompetitionImage> getSetOfImages(String filtereIds) {
         List<CompetitionImage> imgList = new ArrayList<>();
         for (String id : filtereIds.split(",")) {
-            imgList.add(this.images.get(id));
+            var img = this.images.get(id);
+            if (img != null) {
+                imgList.add(img);
+            } else {
+                logger.warn("No image found for id '{}' in lightbox set, skipping", id);
+            }
         }
         return imgList;
     }
@@ -123,7 +128,7 @@ public class ImageCatalog {
         logger.info("{}",state.getSettings().competitions.entrySet());
         String name = comp.imageSrc;
         this.fe = new FileEngine(name,this.bus);
-        this.images = this.fe.scanImages().stream().collect(Collectors.toMap(CompetitionImage::getID, c -> c));
+        this.images = this.fe.scanImages().stream().collect(Collectors.toMap(CompetitionImage::getId, c -> c));
         return name;
 
     }

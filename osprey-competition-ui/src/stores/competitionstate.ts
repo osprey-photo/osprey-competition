@@ -174,6 +174,14 @@ export const useCompetitionStore = defineStore('competition', () => {
     })
   }
 
+  /** Request the calibration chart on the display */
+  async function setCalibrationDisplay() {
+    await axios.post(`${BACKEND_URI}/action`, {
+      action: 'calibration',
+      payload: '',
+    })
+  }
+
   /** Send the list of images to show in a light box to the server */
   async function setLightBoxFiltered(filters: { [filter: string]: boolean }, showDetails: boolean) {
     const filteredImgIds = data.value
@@ -305,6 +313,7 @@ export const useCompetitionStore = defineStore('competition', () => {
     initCatalog,
     getSettings,
     setBlankDisplay,
+    setCalibrationDisplay,
     availableScores,
   }
 })

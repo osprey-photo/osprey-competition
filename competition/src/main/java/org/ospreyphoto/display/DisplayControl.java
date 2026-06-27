@@ -79,11 +79,19 @@ public class DisplayControl {
             switch (action.action) {
                 case FULL_IMAGE_RESULTS:
                 case FULL_IMAGE:
-                    dm.images = List.of(catalog.getFullImage(action.payload));
-
+                    var fullImg = catalog.getImage(action.payload);
+                    if (fullImg == null) {
+                        logger.warn("No image found for id '{}', skipping display", action.payload);
+                        return;
+                    }
+                    dm.images = List.of(fullImg.loadFullImageB64());
                     break;
                 case LIGHT_BOX_IMAGES:
                 case LIGHT_BOX_IMAGES_RESULTS:
+                    if (action.payload == null || action.payload.isEmpty()) {
+                        logger.warn("Empty payload for lightbox, skipping display");
+                        return;
+                    }
                     dm.images = catalog.getSetOfImages(action.payload);
                     break;
                 case RESULTS_SUMMARY:

@@ -1,20 +1,19 @@
 import { FIRST, SECOND, THIRD, HC, HELD_BACK, REJECTED } from './types'
 
 export function placeStyle(place: string) {
-  // console.log(place)
   switch (place) {
     case FIRST:
-      return 'is-link is-light'
+      return 'btn-secondary btn-outline'
     case SECOND:
-      return 'is-link is-light'
+      return 'btn-secondary btn-outline'
     case THIRD:
-      return 'is-link is-light'
+      return 'btn-secondary btn-outline'
     case HC:
-      return 'is-success is-light'
+      return 'btn-success btn-outline'
     case HELD_BACK:
-      return 'is-primary is-light'
+      return 'btn-primary btn-outline'
     case REJECTED:
-      return 'is-danger is-light'
+      return 'btn-error btn-outline'
     default:
       return ''
   }

@@ -8,10 +8,10 @@ defineProps<{
 
 <template>
   <div>
-    <span class="button is-small m-1" v-show="state.kept != ''" :class="placeStyle(state.kept)">
-      {{ state.kept }}
+    <span class="btn btn-sm m-1" v-show="state.kept != '' && state.kept !== 'placed'" :class="placeStyle(state.kept)">
+      {{ state.kept === 'rejected' ? 'Pass' : state.kept === 'held_back' ? 'Hold Back' : state.kept }}
     </span>
-    <span class="button is-small m-1" v-show="state.place != ''" :class="placeStyle(state.place)">
+    <span class="btn btn-sm m-1" v-show="state.place != ''" :class="placeStyle(state.place)">
       {{ state.place }}
     </span>
   </div>

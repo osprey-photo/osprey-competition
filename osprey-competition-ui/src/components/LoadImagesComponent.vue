@@ -40,10 +40,18 @@ async function selectDefault(event: any) {
   newCompetition.value.scoringSystem = defaultComp[0]
 }
 
+const manualPathError = ref('')
+
 async function load() {
   status.loadImages = true
-  const d = await comp.getImageSrc()
-  newCompetition.value.imageSrc = d
+  manualPathError.value = ''
+  try {
+    const d = await comp.getImageSrc()
+    newCompetition.value.imageSrc = d
+  } catch {
+    status.dialogFailed = true
+    manualPathError.value = 'Native dialog unavailable — enter path manually.'
+  }
   status.loadImages = false
 }
 
@@ -61,6 +69,7 @@ const heldbacks = ref(-1)
 
 const status = reactive({
   loadImages: false,
+  dialogFailed: false,
 })
 
 const randomised = ref(true)
@@ -81,205 +90,180 @@ const numberScoresAvailable = ref({
 
 <template>
   <div>
-    <div id="modal-js-example" class="modal" :class="{ 'is-active': active }">
-      <div class="modal-background"></div>
+    <div id="modal-js-example" class="modal" :class="{ 'modal-open': active }">
+      <div class="modal-backdrop" @click="$emit('abort')"></div>
 
-      <div class="modal-card">
-        <header class="modal-card-head">
-          <p class="modal-card-title">Create Critique</p>
-          <button @click="$emit('abort')" class="delete" aria-label="close"></button>
-        </header>
+      <div class="modal-box max-w-3xl">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-bold">Create Critique</h3>
+          <button @click="$emit('abort')" class="btn btn-sm btn-circle btn-ghost" aria-label="close">✕</button>
+        </div>
 
-        <div class="modal-card-body">
-          <div class="columns">
-            <div class="column">
-              <div class="field is-horizontal">
-                <div class="field-label">
-                  <label class="label">Competition Name</label>
-                </div>
-                <div class="field-body">
-                  <div class="control">
-                    <input
-                      class="input is-fullwidth is-success"
-                      type="text"
-                      v-model="newCompetition.competitionNames[0]"
-                    />
-                  </div>
-                </div>
-              </div>
-              <div class="field is-horizontal">
-                <div class="field-label">
-                  <label class="label">Subtitle eg round</label>
-                </div>
-                <div class="field-body">
-                  <div class="control">
-                    <input
-                      class="input is-success"
-                      type="text"
-                      v-model="newCompetition.competitionNames[1]"
-                    />
-                  </div>
-                </div>
-              </div>
-              <div class="field is-horizontal has-addons">
-                <div class="field-label">
-                  <label class="label">Image Directory</label>
-                </div>
-                <div class="field-body">
-                  <div class="control">
-                    <input
-                      class="input is-success"
-                      type="text"
-                      placeholder="Full Directory Path"
-                      v-model="newCompetition.imageSrc"
-                    />
-                  </div>
+        <!-- Body -->
+        <div>
+          <!-- Competition Name -->
+          <div class="flex items-center gap-4 mb-3">
+            <label class="label w-40 shrink-0">
+              <span class="label-text">Competition Name</span>
+            </label>
+            <div class="flex-1">
+              <input
+                class="input input-bordered input-success w-full"
+                type="text"
+                v-model="newCompetition.competitionNames[0]"
+              />
+            </div>
+          </div>
 
-                  <div class="control">
-                    <button
-                      class="button"
-                      @click="load"
-                      :class="{ 'is-loading': status.loadImages }"
-                    >
-                      Select directory...
-                    </button>
-                  </div>
-                </div>
-              </div>
+          <!-- Subtitle -->
+          <div class="flex items-center gap-4 mb-3">
+            <label class="label w-40 shrink-0">
+              <span class="label-text">Subtitle eg round</span>
+            </label>
+            <div class="flex-1">
+              <input
+                class="input input-bordered input-success w-full"
+                type="text"
+                v-model="newCompetition.competitionNames[1]"
+              />
+            </div>
+          </div>
 
-              <div class="field is-horizontal">
-                <div class="field-label">
-                  <label class="label">Default Scoring</label>
-                </div>
-                <div class="field-body">
-                  <div class="control is-expanded">
-                    <div class="select is-fullwidth">
-                      <select v-model="scoring" @change="selectDefault($event)">
-                        <option value="">please select...</option>
-                        <option
-                          v-for="system in comp.competitionSettings.scoringSystems"
-                          :value="system.id"
-                          :key="system.id"
-                        >
-                          {{ system.description }}
-                        </option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-              </div>
+          <!-- Image Directory -->
+          <div class="flex items-center gap-4 mb-3">
+            <label class="label w-40 shrink-0">
+              <span class="label-text">Image Directory</span>
+            </label>
+            <div class="flex-1">
+              <input
+                class="input input-bordered input-success w-full"
+                type="text"
+                placeholder="Full Directory Path"
+                v-model="newCompetition.imageSrc"
+              />
+              <p v-if="manualPathError" class="text-error text-sm mt-1">{{ manualPathError }}</p>
+            </div>
+            <div v-if="!status.dialogFailed">
+              <button
+                class="btn"
+                :class="{ loading: status.loadImages }"
+                @click="load"
+              >
+                Select directory...
+              </button>
+            </div>
+          </div>
 
-              <div class="field is-horizontal">
-                <div class="field-label">
-                  <label class="label">Marks or places</label>
-                </div>
-                <div class="field-body">
-                  <div class="control">
-                    <div class="select is-fullwidth">
-                      <select v-model="marks">
-                        <option value="placed">1st, 2nd, 3rd, HC</option>
-                        <option value="ten">1-10</option>
-                        <option value="five">2,3,4,5</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-              </div>
+          <!-- Default Scoring -->
+          <div class="flex items-center gap-4 mb-3">
+            <label class="label w-40 shrink-0">
+              <span class="label-text">Default Scoring</span>
+            </label>
+            <div class="flex-1">
+              <select class="select select-bordered w-full" v-model="scoring" @change="selectDefault($event)">
+                <option value="">please select...</option>
+                <option
+                  v-for="system in comp.competitionSettings.scoringSystems"
+                  :value="system.id"
+                  :key="system.id"
+                >
+                  {{ system.description }}
+                </option>
+              </select>
+            </div>
+          </div>
 
-              <div class="field is-horizontal">
-                <div class="field-label">
-                  <label class="label">Score Places</label>
-                </div>
-                <div class="field-body">
-                  <div class="fixed-grid has-5-cols">
-                    <div class="grid">
-                      <div v-for="(v, k) in numberScoresAvailable" :key="k" class="cell">
-                        <div class="field">
-                          <div class="field-label">
-                            <label class="label">{{ k }}</label>
-                          </div>
-                          <div class="field-body">
-                            <div class="control">
-                              <select v-model="numberScoresAvailable[k]">
-                                <option value="-1">No limit</option>
-                                <option>1</option>
-                                <option>2</option>
-                                <option>3</option>
-                              </select>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="field is-horizontal">
-                <div class="field-label">
-                  <label class="label">Heldback Limit</label>
-                </div>
-                <div class="field-body">
-                  <div class="control">
-                    <div class="select">
-                      <select v-model="heldbacks">
-                        <option value="-1">No limit</option>
-                        <option>5</option>
-                        <option>10</option>
-                        <option>15</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="field is-horizontal">
-                <div class="field-label">
-                  <label class="label">Runthrough Image time</label>
-                </div>
-                <div class="field-body">
-                  <div class="control">
-                    <div class="select">
-                      <select v-model="runthroughTime">
-                        <option value="3000">3s</option>
-                        <option value="4000">4s</option>
-                        <option value="5000">5s</option>
-                        <option value="6000">6s</option>
-                        <option value="8000">8s</option>
-                        <option value="10000">10s</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="field is-horizontal">
-                <div class="field-label">
-                  <label class="label">Randomise</label>
-                </div>
-                <div class="field-body">
-                  <div class="control">
-                    <label class="radio">
-                      <input type="radio" name="member" value="true" v-model="randomised" />
-                      Yes
-                    </label>
-                    <label class="radio">
-                      <input type="radio" name="member" value="false" v-model="randomised" />
-                      No
-                    </label>
-                  </div>
+          <!-- Marks or places -->
+          <div class="flex items-center gap-4 mb-3">
+            <label class="label w-40 shrink-0">
+              <span class="label-text">Marks or places</span>
+            </label>
+            <div class="flex-1">
+              <select class="select select-bordered w-full" v-model="marks">
+                <option value="placed">1st, 2nd, 3rd, HC</option>
+                <option value="ten">1-10</option>
+                <option value="five">2,3,4,5</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Score Places grid -->
+          <div class="flex items-start gap-4 mb-3">
+            <label class="label w-40 shrink-0 mt-1">
+              <span class="label-text">Score Places</span>
+            </label>
+            <div class="flex-1">
+              <div class="grid grid-cols-5 gap-2">
+                <div v-for="(v, k) in numberScoresAvailable" :key="k">
+                  <label class="label">
+                    <span class="label-text text-xs">{{ k }}</span>
+                  </label>
+                  <select class="select select-bordered select-sm w-full" v-model="numberScoresAvailable[k]">
+                    <option value="-1">No limit</option>
+                    <option>1</option>
+                    <option>2</option>
+                    <option>3</option>
+                  </select>
                 </div>
               </div>
             </div>
           </div>
 
-          <footer class="modal-card-foot">
-            <div class="buttons">
-              <button class="button is-success" @click="closeUpdate">Close and update list</button>
-              <button class="button" @click="$emit('abort')">Cancel</button>
+          <!-- Heldback Limit -->
+          <div class="flex items-center gap-4 mb-3">
+            <label class="label w-40 shrink-0">
+              <span class="label-text">Heldback Limit</span>
+            </label>
+            <div>
+              <select class="select select-bordered" v-model="heldbacks">
+                <option value="-1">No limit</option>
+                <option>5</option>
+                <option>10</option>
+                <option>15</option>
+              </select>
             </div>
-          </footer>
+          </div>
+
+          <!-- Runthrough Image time -->
+          <div class="flex items-center gap-4 mb-3">
+            <label class="label w-40 shrink-0">
+              <span class="label-text">Runthrough Image time</span>
+            </label>
+            <div>
+              <select class="select select-bordered" v-model="runthroughTime">
+                <option value="3000">3s</option>
+                <option value="4000">4s</option>
+                <option value="5000">5s</option>
+                <option value="6000">6s</option>
+                <option value="8000">8s</option>
+                <option value="10000">10s</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Randomise -->
+          <div class="flex items-center gap-4 mb-3">
+            <span class="label-text w-40 shrink-0">Randomise</span>
+            <div class="flex gap-6">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="radio" class="radio radio-sm" name="member" value="true" v-model="randomised" />
+                <span class="label-text">Yes</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="radio" class="radio radio-sm" name="member" value="false" v-model="randomised" />
+                <span class="label-text">No</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-action">
+          <button class="btn btn-success" @click="closeUpdate">Close and update list</button>
+          <button class="btn" @click="$emit('abort')">Cancel</button>
         </div>
       </div>
-
-      <!-- <button @click="$emit('done')" class="modal-close is-large" aria-label="close"></button> -->
     </div>
   </div>
 </template>

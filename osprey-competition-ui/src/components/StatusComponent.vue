@@ -25,7 +25,7 @@ socket.onmessage = (event) => {
   <div class="status-container">
     <h4>Status Messages</h4>
 
-    <table class="table is-scrollable">
+    <table class="table overflow-y-auto max-h-48">
       <tr :id="evt" v-for="(evt, index) in msgs" :key="index">
         <td>{{ evt }}</td>
       </tr>

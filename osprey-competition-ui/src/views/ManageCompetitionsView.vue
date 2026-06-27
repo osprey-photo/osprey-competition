@@ -47,54 +47,33 @@ async function startComp(compId: string) {
 
 <template>
   <NavBarComponent />
-  <div class="section has-background-light">
-    <h1 class="title">Manage Competitions</h1>
-    <div class="container">
-      <div class="level">
-        <div class="level-left">
-          <div class="level-item">
-            <p class="subtitle is-5">Club Name</p>
-          </div>
-          <div class="level-item">
-            <div class="field">
-              <div class="field-body">
-                <div class="field">
-                  <input
-                    class="input is-medium"
-                    type="text"
-                    v-model="comp.competitionSettings.clubName"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
+  <section class="p-6 bg-base-200">
+    <h1 class="text-2xl font-bold mb-4">Manage Competitions</h1>
+    <div class="container mx-auto">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-2">
+          <span class="text-base font-semibold">Club Name</span>
+          <input
+            class="input input-bordered input-md"
+            type="text"
+            v-model="comp.competitionSettings.clubName"
+          />
         </div>
-        <div class="level-right">
-          <button class="button" @click="statusIndicator.loadImagesDialog = true">
-            New Critique...
-          </button>
-          <button class="button" @click="save">Save</button>
+        <div class="flex items-center gap-2">
+          <button class="btn" @click="statusIndicator.loadImagesDialog = true">New Critique...</button>
+          <button class="btn" @click="save">Save</button>
         </div>
       </div>
-      <div class="table-container">
-        <table class="table is-striped is-fullwidth">
+
+      <div class="overflow-x-auto table-container">
+        <table class="table table-zebra w-full">
           <thead>
-            <tr class="has-background-white">
-              <th class="px-6 py-3">
-                <span class="is-size-5">Compeitition Title</span>
-              </th>
-              <th class="px-6 py-3">
-                <span class="is-size-5">Subtitle</span>
-              </th>
-              <th class="px-6 py-3">
-                <span class="is-size-5">Image paths</span>
-              </th>
-              <th class="px-6 py-3">
-                <span class="is-size-5">Summary</span>
-              </th>
-              <th class="px-6 py-3">
-                <span class="is-size-5">Actions</span>
-              </th>
+            <tr class="bg-white">
+              <th class="px-6 py-3"><span class="text-xl">Competition Title</span></th>
+              <th class="px-6 py-3"><span class="text-xl">Subtitle</span></th>
+              <th class="px-6 py-3"><span class="text-xl">Image paths</span></th>
+              <th class="px-6 py-3"><span class="text-xl">Summary</span></th>
+              <th class="px-6 py-3"><span class="text-xl">Actions</span></th>
             </tr>
           </thead>
           <tbody>
@@ -104,8 +83,6 @@ async function startComp(compId: string) {
               <td>{{ item.imageSrc }}</td>
               <td>{{ item.scoringSystem.id }}</td>
               <td>
-                <!-- <a class="" @click="editComp(key)"><svg-icon type="mdi" size="20"
-                    :path="mdiNoteEditOutline"></svg-icon></a> -->
                 <a class="" @click="deleteComp(key as string)"
                   ><svg-icon type="mdi" size="20" :path="mdiDeleteOutline"></svg-icon
                 ></a>
@@ -119,27 +96,24 @@ async function startComp(compId: string) {
       </div>
     </div>
 
-    <div class="container" v-show="activeSection === 'general'">
-      <hr />
-      <div class="panel">
-        <div class="field is-horizontal">
-          <div class="field-label is-normal">
-            <label class="label">Club nane</label>
-          </div>
-          <div class="field-body">
-            <div class="field">
-              <input class="input" type="text" />
-            </div>
-          </div>
+    <div class="container mx-auto" v-show="activeSection === 'general'">
+      <hr class="my-4" />
+      <div class="card card-bordered p-4">
+        <div class="flex items-center gap-4">
+          <label class="label w-32 shrink-0">
+            <span class="label-text">Club name</span>
+          </label>
+          <input class="input input-bordered flex-1" type="text" />
         </div>
       </div>
     </div>
+
     <LoadImagesComponent
       :active="statusIndicator.loadImagesDialog"
       @done="doneLoadImages"
       @abort="abortLoadImages"
     />
-  </div>
+  </section>
 </template>
 
 <style lang="css">
